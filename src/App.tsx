@@ -3,6 +3,7 @@ import HomePage from "./pages/HomePage";
 import NavBar from "./components/Navbar";
 import Footer from "./components/Footer";
 import GameContainer from "./components/play/GameContainer";
+import PlayGame from "./pages/PlayGame";
 
 function App() {
   return (
@@ -12,7 +13,7 @@ function App() {
         <Route path="/" element={<HomePage />} />
         <Route
           path="/play"
-          element={<GameContainer/>}
+          element={<PlayGame/>}
         />
       </Routes>
       <Footer/>

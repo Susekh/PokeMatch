@@ -9,7 +9,7 @@ const socialLinks = [
 
 const Footer = () => {
   return (
-    <footer className="w-full bg-white/5 backdrop-blur-xl border-t border-white/10 text-white">
+    <footer className="w-full bg-neutral-900 backdrop-blur-xl border-t border-white/10 text-white">
       <div className="max-w-7xl mx-auto px-6 py-8 flex flex-col md:flex-row items-center justify-between gap-6">
         {/* Left: Logo or Copyright */}
         <p className="text-sm text-white/80 text-center md:text-left">

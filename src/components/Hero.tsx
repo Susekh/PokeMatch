@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { TiLocationArrow } from "react-icons/ti";
 
 import Button from "./Button";
+import { Link } from "react-router";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -73,11 +74,13 @@ const Hero = () => {
   <p className="text-lg sm:text-2xl text-blue-100 max-w-2xl mb-8 sm:mb-10">
     Flip the cards. Train your brain. Beat your high score.
   </p>
+  <Link to={"/play"} >
   <Button
     title="Start Playing"
     leftIcon={<TiLocationArrow />}
     containerClass="inline-flex items-center gap-2 bg-yellow-300 text-black text-lg font-semibold px-8 py-3 rounded-full shadow-md hover:bg-yellow-400 transition-all duration-200"
   />
+  </Link>
 </div>
 
       

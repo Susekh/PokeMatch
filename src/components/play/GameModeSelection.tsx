@@ -57,7 +57,7 @@ export default function GameModeSelection({ onSelectMode }: GameModeSelectionPro
               <Button
                 title="Start Game"
                 rightIcon={<Play className="w-4 h-4" />}
-                containerClass="w-full bg-gradient-to-r from-yellow-400/80 to-amber-500/80 hover:from-yellow-500 hover:to-amber-600 text-black font-medium flex items-center justify-center gap-2"
+                containerClass="w-full bg-gradient-to-r bg-gray-800 text-white border-2 border-yellow-500 hover:from-yellow-500 hover:to-amber-600 hover:text-black font-medium flex items-center justify-center gap-2"
               />
             </button>
           </div>
@@ -81,7 +81,7 @@ export default function GameModeSelection({ onSelectMode }: GameModeSelectionPro
               <Button
                 title="Start Game"
                 rightIcon={<Play className="w-4 h-4" />}
-                containerClass="w-full bg-gradient-to-r from-blue-500/80 to-indigo-600/80 hover:from-blue-600 hover:to-indigo-700 text-white font-medium flex items-center justify-center gap-2"
+                containerClass="w-full bg-gradient-to-r bg-gray-800 border-2 border-blue-600 hover:from-blue-600 hover:to-indigo-700 text-white font-medium flex items-center justify-center gap-2"
               />
             </button>
           </div>
@@ -105,7 +105,7 @@ export default function GameModeSelection({ onSelectMode }: GameModeSelectionPro
               <Button
                 title="Start Game"
                 rightIcon={<Play className="w-4 h-4" />}
-                containerClass="w-full bg-gradient-to-r from-purple-500/80 to-pink-600/80 hover:from-purple-600 hover:to-pink-700 text-white font-medium flex items-center justify-center gap-2"
+                containerClass="w-full bg-gradient-to-r bg-gray-800 border-2 border-purple-800 hover:from-purple-600 hover:to-pink-700 text-white font-medium flex items-center justify-center gap-2"
               />
             </button>
           </div>

@@ -871,8 +871,8 @@ export default function GameBoard({
   // Loading state
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-900 text-white">
-      <h1 className="text-xl font-semibold p-4">Loading Pokémons...</h1>
+      <div>
+      <h1 className="text-xl text-gray-500 font-general p-4">Loading Pokémons...</h1>
       <ShimmerPokemonCard />
     </div>
     );

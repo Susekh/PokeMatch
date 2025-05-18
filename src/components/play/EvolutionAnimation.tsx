@@ -121,7 +121,7 @@ export default function EvolutionAnimation({ basePokemon, evolvedPokemon, onComp
 
         <div className="relative flex items-center justify-center">
           {/* Base Pokemon */}
-          <div ref={baseRef} className="bg-gradient-to-br from-indigo-900 to-purple-900 p-6 rounded-xl">
+          <div ref={baseRef} className="bg-gradient-to-br from-gray-800 to-black p-6 rounded-xl">
             <div className="relative">
               <img
                 src={basePokemon.image || "/placeholder.svg"}

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Trophy, ArrowLeft} from "lucide-react";
 import ScoreTracker from "./ScoreTracker";
 import LevelUpAnimation from "./LevelUpAnimation";

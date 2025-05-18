@@ -676,29 +676,29 @@ export default function GameBoard({
   }, [level, fetchPokemon]);
 
   // Add entrance animation for cards
-  useEffect(() => {
-    if (!loading && boardRef.current) {
-      const cards = boardRef.current.querySelectorAll(".card-container");
+  // useEffect(() => {
+  //   if (!loading && boardRef.current) {
+  //     const cards = boardRef.current.querySelectorAll(".card-container");
 
-      gsap.fromTo(
-        cards,
-        {
-          scale: 0.8,
-          opacity: 0,
-          y: 20,
-        },
-        {
-          scale: 1,
-          opacity: 1,
-          y: 0,
-          stagger: 0.03,
-          duration: 0.5,
-          ease: "back.out(1.7)",
-          clearProps: "all", // Clean up after animation for better performance
-        }
-      );
-    }
-  }, [loading, currentPlayer]);
+  //     gsap.fromTo(
+  //       cards,
+  //       {
+  //         scale: 0.8,
+  //         opacity: 0,
+  //         y: 20,
+  //       },
+  //       {
+  //         scale: 1,
+  //         opacity: 1,
+  //         y: 0,
+  //         stagger: 0.03,
+  //         duration: 0.5,
+  //         ease: "back.out(1.7)",
+  //         clearProps: "all", // Clean up after animation for better performance
+  //       }
+  //     );
+  //   }
+  // }, [loading, currentPlayer]);
 
   useEffect(() => {
     if (gameMode === "multiplayer") {

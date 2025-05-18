@@ -20,22 +20,6 @@ export default function GameContainer() {
   );
   const [showLevelUp, setShowLevelUp] = useState(false);
 
-  // Initialize GSAP animations
-  useEffect(() => {
-    // Animate header on load
-    gsap.fromTo(
-      ".game-title",
-      { opacity: 0, y: -20 },
-      { opacity: 1, y: 0, duration: 0.5 }
-    );
-
-    gsap.fromTo(
-      ".game-subtitle",
-      { opacity: 0 },
-      { opacity: 1, duration: 0.5, delay: 0.3 }
-    );
-  }, []);
-
   const startGame = (mode: GameMode) => {
     setGameMode(mode);
     setGameState("playing");

@@ -1,6 +1,7 @@
-import { Zap } from "lucide-react";
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
+import { SiPokemon } from "react-icons/si";
+import { MdOutlineCatchingPokemon } from "react-icons/md";
 
 interface PokemonCardProps {
   pokemon: {
@@ -26,18 +27,16 @@ export default function PokemonCard({
   const playerColor = currentPlayer === "player1" ? "yellow" : "blue";
   const cardRef = useRef<HTMLDivElement>(null);
 
-  // Handle flip animations when flipped state changes
   useEffect(() => {
     if (cardRef.current) {
       gsap.to(cardRef.current, {
         rotationY: pokemon.flipped ? 180 : 0,
-        duration: 0.8,
+        duration: 0.3,
         ease: "power4",
       });
     }
-  }, [pokemon.flipped]); // React to changes in the flipped state
+  }, [pokemon.flipped]);
 
-  // Handle match animation
   useEffect(() => {
     if (pokemon.matched && cardRef.current) {
       gsap.to(cardRef.current, {
@@ -46,11 +45,10 @@ export default function PokemonCard({
         ease: "power2.out",
       });
 
-      // Add match animation
       const matchAnimation = gsap.timeline();
       matchAnimation
         .to(cardRef.current, {
-          boxShadow: "0 0 15px 5px rgba(250, 204, 21, 0.7)",
+          boxShadow: "0 0 15px 5px rgba(250, 204, 21, 0.6)",
           scale: 1.05,
           duration: 0.3,
         })
@@ -62,9 +60,15 @@ export default function PokemonCard({
     }
   }, [pokemon.matched]);
 
-  // Handle click with proper animation
   const handleCardClick = () => {
     if (!disabled && !pokemon.flipped && !pokemon.matched) {
+      if (cardRef.current) {
+        gsap.fromTo(
+          cardRef.current,
+          { scale: 1 },
+          { scale: 0.95, duration: 0.1, yoyo: true, repeat: 1 }
+        );
+      }
       onClick();
     }
   };
@@ -74,94 +78,65 @@ export default function PokemonCard({
       <div
         ref={cardRef}
         data-card-id={cardIndex}
-        className={`relative w-full h-full ${
+        className={`relative w-full h-full transition-transform duration-500 ease-in-out ${
           disabled ? "pointer-events-none" : "cursor-pointer"
         }`}
         style={{ transformStyle: "preserve-3d" }}
         onClick={handleCardClick}
       >
-        {/* Card Back */}
+        {/* Card Back - Dark Glassmorphism */}
         <div
           className={`absolute w-full h-full rounded-xl overflow-hidden border-2 ${
             currentPlayer === "player1"
-              ? "border-yellow-500"
-              : "border-blue-500"
-          } shadow-lg`}
+              ? "border-yellow-400"
+              : "border-blue-400"
+          } shadow-xl backdrop-blur-lg bg-black/30`}
           style={{ backfaceVisibility: "hidden" }}
         >
-          <div className="w-full h-full bg-gradient-to-br from-gray-900 to-gray-800 flex items-center justify-center p-2">
-            <div className="relative w-full h-full">
-              {/* Lightning bolt pattern */}
-              <div className="absolute inset-0 opacity-20">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <Zap
-                    key={i}
-                    className={`absolute text-${playerColor}-400 w-8 h-8 transform`}
-                    style={{
-                      top:
-                        i === 0
-                          ? "10%"
-                          : i === 1
-                          ? "30%"
-                          : i === 2
-                          ? "50%"
-                          : i === 3
-                          ? "70%"
-                          : "85%",
-                      left:
-                        i === 0
-                          ? "20%"
-                          : i === 1
-                          ? "60%"
-                          : i === 2
-                          ? "40%"
-                          : i === 3
-                          ? "75%"
-                          : "30%",
-                      opacity:
-                        i === 0
-                          ? 0.5
-                          : i === 1
-                          ? 0.7
-                          : i === 2
-                          ? 0.6
-                          : i === 3
-                          ? 0.4
-                          : 0.8,
-                      transform: `rotate(${i * 45}deg)`,
-                    }}
-                  />
-                ))}
-              </div>
+          <div className="w-full h-full relative bg-gradient-to-br from-gray-900/40 to-black/60 flex items-center justify-center p-2">
+            {/* Lightning Pattern */}
+            <div className="absolute inset-0 opacity-20 pointer-events-none">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <MdOutlineCatchingPokemon
+                  key={i}
+                  className={`absolute text-${playerColor}-300 w-8 h-8`}
+                  style={{
+                    top: ["10%", "30%", "50%", "70%", "85%"][i],
+                    left: ["20%", "60%", "40%", "75%", "30%"][i],
+                    opacity: 0.3 + 0.1 * i,
+                    transform: `rotate(${i * 45}deg)`,
+                  }}
+                />
+              ))}
+            </div>
 
-              {/* Center emblem */}
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div
-                  className={`w-16 h-16 rounded-full bg-gradient-to-br from-${playerColor}-500/40 to-${playerColor}-600/20 flex items-center justify-center backdrop-blur-sm`}
-                >
-                  <Zap className={`w-10 h-10 text-${playerColor}-400`} />
-                </div>
+            {/* Emblem */}
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div
+                className={`w-16 h-16 rounded-full border border-white/20 shadow-inner bg-gradient-to-br from-${playerColor}-500/20 to-${playerColor}-700/10 backdrop-blur-md flex items-center justify-center`}
+              >
+                <SiPokemon className={`w-10 h-10 text-${playerColor}-200`} />
               </div>
             </div>
           </div>
         </div>
 
-        {/* Card Front */}
+        {/* Card Front - Dark Mode */}
         <div
-          className="absolute w-full h-full rounded-xl overflow-hidden border-2 border-gray-700 shadow-lg"
+          className="absolute w-full h-full rounded-xl overflow-hidden border-2 border-gray-700 shadow-xl bg-gray-900/80 backdrop-blur-sm"
           style={{
             backfaceVisibility: "hidden",
             transform: "rotateY(180deg)",
           }}
         >
           <div
-            className={`w-full h-full bg-white flex flex-col items-center justify-between p-2 ${
+            className={`w-full h-full flex flex-col items-center justify-between p-2 transition-all duration-300 ${
               pokemon.matched
-                ? "bg-gradient-to-br from-yellow-100 to-yellow-200"
-                : ""
+                ? "bg-gradient-to-br from-yellow-900/30 to-yellow-700/30"
+                : "bg-gray-900/80"
             }`}
           >
-            <div className="w-full bg-gradient-to-br from-gray-100 to-gray-200 rounded-md flex-1 flex items-center justify-center p-1">
+            <div className="w-full bg-gradient-to-br from-gray-800 to-gray-900 rounded-md flex-1 flex items-center justify-center p-1">
               {pokemon.image ? (
                 <img
                   src={pokemon.image || "/placeholder.svg"}
@@ -169,11 +144,11 @@ export default function PokemonCard({
                   className="w-full h-full object-contain"
                 />
               ) : (
-                <div className="w-10 h-10 rounded-full bg-gray-300 animate-pulse" />
+                <div className="w-10 h-10 rounded-full bg-gray-700 animate-pulse" />
               )}
             </div>
             <div className="w-full text-center mt-1">
-              <p className="text-xs font-medium text-gray-800 capitalize truncate">
+              <p className="text-xs font-medium text-gray-100 capitalize truncate">
                 {pokemon.name}
               </p>
             </div>

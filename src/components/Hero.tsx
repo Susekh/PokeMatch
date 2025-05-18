@@ -6,6 +6,7 @@ import { TiLocationArrow } from "react-icons/ti";
 
 import Button from "./Button";
 import { Link } from "react-router";
+import GeometricLoader from "./loaders/HeroLoader";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -74,9 +75,7 @@ const Hero = () => {
     >
       {/* Loader */}
       {loading && (
-        <div className="flex-center absolute z-[100] h-dvh w-screen overflow-hidden bg-violet-50">
-          loadinggg...
-        </div>
+        <GeometricLoader/>
       )}
 
       {/* Background Video */}

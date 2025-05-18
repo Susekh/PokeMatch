@@ -1,22 +1,23 @@
 import { Route, Routes } from "react-router";
-import HomePage from "./pages/HomePage";
+import { Suspense, lazy } from "react";
 import NavBar from "./components/Navbar";
 import Footer from "./components/Footer";
-import GameContainer from "./components/play/GameContainer";
-import PlayGame from "./pages/PlayGame";
+
+// Lazy-loaded pages
+const HomePage = lazy(() => import("./pages/HomePage"));
+const PlayGame = lazy(() => import("./pages/PlayGame"));
 
 function App() {
   return (
     <main>
       <NavBar />
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route
-          path="/play"
-          element={<PlayGame/>}
-        />
-      </Routes>
-      <Footer/>
+      <Suspense fallback={<div>Loading...</div>}>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/play" element={<PlayGame />} />
+        </Routes>
+      </Suspense>
+      <Footer />
     </main>
   );
 }

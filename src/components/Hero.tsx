@@ -3,9 +3,10 @@ import { ScrollTrigger } from "gsap/all";
 import { useGSAP } from "@gsap/react";
 import { useEffect, useRef, useState } from "react";
 import { TiLocationArrow } from "react-icons/ti";
-import { Link } from "react-router";
 
 import Button from "./Button";
+import { Link } from "react-router";
+import GeometricLoader from "./loaders/HeroLoader";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -13,14 +14,33 @@ const Hero = () => {
   const videoContainerRef = useRef<HTMLDivElement | null>(null);
   const heroSectionRef = useRef<HTMLElement | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [loadedVideos, setLoadedVideos] = useState(0);
+  const [videoIndex, setVideoIndex] = useState(1);
 
   const totalVideos = 4;
-  const [videoIndex, setVideoIndex] = useState(1);
-  const [loadedVideos, setLoadedVideos] = useState(0);
 
   const getVideoSrc = (index: number) => `videos/hero-${index}.mp4`;
 
-  // Rotate videos every 8 seconds
+  // Preload videos
+  useEffect(() => {
+    for (let i = 1; i <= totalVideos; i++) {
+      const video = document.createElement("video");
+      video.src = getVideoSrc(i);
+      video.preload = "auto";
+      video.addEventListener("canplaythrough", () => {
+        setLoadedVideos((prev) => prev + 1);
+      });
+    }
+  }, []);
+
+  useEffect(() => {
+    if (loadedVideos >= totalVideos) {
+      setLoading(false);
+    }
+  }, [loadedVideos]);
+
+  // Change video every 8 seconds
   useEffect(() => {
     const interval = setInterval(() => {
       setVideoIndex((prev) => (prev % totalVideos) + 1);
@@ -28,19 +48,7 @@ const Hero = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // Preload all videos and count when each is loaded
-  useEffect(() => {
-    for (let i = 1; i <= totalVideos; i++) {
-      const video = document.createElement("video");
-      video.src = getVideoSrc(i);
-      video.preload = "auto";
-      video.onloadeddata = () => {
-        setLoadedVideos((prev) => prev + 1);
-      };
-    }
-  }, []);
-
-  // Scroll-triggered animation
+  // Clip path scroll animation
   useGSAP(() => {
     if (!videoContainerRef.current || !heroSectionRef.current) return;
 
@@ -60,20 +68,18 @@ const Hero = () => {
     });
   }, []);
 
-  // Show nothing until all videos are loaded
-  if (loadedVideos < totalVideos) {
-    return (
-      <div className="flex h-screen w-screen items-center justify-center bg-black text-yellow-300 text-2xl font-bold">
-        Loading...
-      </div>
-    );
-  }
-
   return (
     <section
       ref={heroSectionRef}
       className="relative h-screen w-screen overflow-hidden bg-black text-white"
     >
+      {/* Loader */}
+      {loading && (
+        <div className="flex-center absolute z-[100] h-dvh w-screen overflow-hidden bg-violet-50">
+          loadinggg...
+        </div>
+      )}
+
       {/* Background Video */}
       <div
         ref={videoContainerRef}
@@ -99,7 +105,7 @@ const Hero = () => {
         <p className="text-lg sm:text-2xl font-pokemon text-blue-100 max-w-2xl mb-8 sm:mb-10">
           Flip the cards. Train your brain. Beat your high score.
         </p>
-        <Link to={"/play"}>
+        <Link to="/play">
           <Button
             title="Start Playing"
             leftIcon={<TiLocationArrow />}

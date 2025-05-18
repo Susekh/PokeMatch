@@ -38,27 +38,41 @@ export default function PokemonCard({
   }, [pokemon.flipped]);
 
   useEffect(() => {
-    if (pokemon.matched && cardRef.current) {
-      gsap.to(cardRef.current, {
-        rotationY: 180,
-        duration: 0.6,
-        ease: "power2.out",
-      });
+    const card = cardRef.current;
+    if (!card) return;
 
-      const matchAnimation = gsap.timeline();
-      matchAnimation
-        .to(cardRef.current, {
-          boxShadow: "0 0 15px 5px rgba(250, 204, 21, 0.6)",
-          scale: 1.05,
-          duration: 0.3,
-        })
-        .to(cardRef.current, {
-          boxShadow: "0 0 5px 2px rgba(250, 204, 21, 0.3)",
-          scale: 1,
-          duration: 0.5,
+    const handleMouseEnter = () => {
+      if (!pokemon.flipped && !pokemon.matched && !disabled) {
+        gsap.to(card, {
+          scale: 1.04,
+          y: -4,
+          boxShadow: "0px 8px 15px rgba(0,0,0,0.3)",
+          duration: 0.1,
+          ease: "ease",
         });
-    }
-  }, [pokemon.matched]);
+      }
+    };
+
+    const handleMouseLeave = () => {
+      if (!pokemon.flipped && !pokemon.matched && !disabled) {
+        gsap.to(card, {
+          scale: 1,
+          y: 0,
+          boxShadow: "none",
+          duration: 0.3,
+          ease: "power2.out",
+        });
+      }
+    };
+
+    card.addEventListener("mouseenter", handleMouseEnter);
+    card.addEventListener("mouseleave", handleMouseLeave);
+
+    return () => {
+      card.removeEventListener("mouseenter", handleMouseEnter);
+      card.removeEventListener("mouseleave", handleMouseLeave);
+    };
+  }, [pokemon.flipped, pokemon.matched, disabled]);
 
   const handleCardClick = () => {
     if (!disabled && !pokemon.flipped && !pokemon.matched) {

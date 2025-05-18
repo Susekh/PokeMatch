@@ -3,21 +3,24 @@ import { ScrollTrigger } from "gsap/all";
 import { useGSAP } from "@gsap/react";
 import { useEffect, useRef, useState } from "react";
 import { TiLocationArrow } from "react-icons/ti";
+import { Link } from "react-router";
 
 import Button from "./Button";
-import { Link } from "react-router";
 
 gsap.registerPlugin(ScrollTrigger);
 
 const Hero = () => {
-  const videoContainerRef = useRef(null);
-  const heroSectionRef = useRef(null);
-  const videoRef = useRef(null);
-  const [videoIndex, setVideoIndex] = useState(1);
+  const videoContainerRef = useRef<HTMLDivElement | null>(null);
+  const heroSectionRef = useRef<HTMLElement | null>(null);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+
   const totalVideos = 4;
+  const [videoIndex, setVideoIndex] = useState(1);
+  const [loadedVideos, setLoadedVideos] = useState(0);
 
-  const getVideoSrc = (index : number) => `videos/hero-${index}.mp4`;
+  const getVideoSrc = (index: number) => `videos/hero-${index}.mp4`;
 
+  // Rotate videos every 8 seconds
   useEffect(() => {
     const interval = setInterval(() => {
       setVideoIndex((prev) => (prev % totalVideos) + 1);
@@ -25,6 +28,19 @@ const Hero = () => {
     return () => clearInterval(interval);
   }, []);
 
+  // Preload all videos and count when each is loaded
+  useEffect(() => {
+    for (let i = 1; i <= totalVideos; i++) {
+      const video = document.createElement("video");
+      video.src = getVideoSrc(i);
+      video.preload = "auto";
+      video.onloadeddata = () => {
+        setLoadedVideos((prev) => prev + 1);
+      };
+    }
+  }, []);
+
+  // Scroll-triggered animation
   useGSAP(() => {
     if (!videoContainerRef.current || !heroSectionRef.current) return;
 
@@ -37,12 +53,21 @@ const Hero = () => {
       ease: "power3.inOut",
       scrollTrigger: {
         trigger: heroSectionRef.current,
-        start: "top center", // Trigger sooner
+        start: "top center",
         end: "bottom top",
         scrub: true,
       },
     });
   }, []);
+
+  // Show nothing until all videos are loaded
+  if (loadedVideos < totalVideos) {
+    return (
+      <div className="flex h-screen w-screen items-center justify-center bg-black text-yellow-300 text-2xl font-bold">
+        Loading...
+      </div>
+    );
+  }
 
   return (
     <section
@@ -67,23 +92,21 @@ const Hero = () => {
       </div>
 
       {/* Hero Content */}
-<div className="relative z-20 flex min-h-screen w-full flex-col items-center justify-center text-center px-6 py-12 sm:py-20">
-  <h1 className="text-5xl uppercase sm:text-7xl font-bold font-pokemon-hollow mb-6 text-yellow-300 drop-shadow-lg leading-tight">
-    Memory Match
-  </h1>
-  <p className="text-lg sm:text-2xl font-pokemon text-blue-100 max-w-2xl mb-8 sm:mb-10">
-    Flip the cards. Train your brain. Beat your high score.
-  </p>
-  <Link to={"/play"} >
-  <Button
-    title="Start Playing"
-    leftIcon={<TiLocationArrow />}
-    containerClass="inline-flex items-center gap-2 bg-yellow-300 text-black text-lg font-semibold px-8 py-3 rounded-full shadow-md hover:bg-yellow-400 transition-all duration-200"
-  />
-  </Link>
-</div>
-
-      
+      <div className="relative z-20 flex min-h-screen w-full flex-col items-center justify-center text-center px-6 py-12 sm:py-20">
+        <h1 className="text-5xl uppercase sm:text-7xl font-bold font-pokemon-hollow mb-6 text-yellow-300 drop-shadow-lg leading-tight">
+          Memory Match
+        </h1>
+        <p className="text-lg sm:text-2xl font-pokemon text-blue-100 max-w-2xl mb-8 sm:mb-10">
+          Flip the cards. Train your brain. Beat your high score.
+        </p>
+        <Link to={"/play"}>
+          <Button
+            title="Start Playing"
+            leftIcon={<TiLocationArrow />}
+            containerClass="inline-flex items-center gap-2 bg-yellow-300 text-black text-lg font-semibold px-8 py-3 rounded-full shadow-md hover:bg-yellow-400 transition-all duration-200"
+          />
+        </Link>
+      </div>
     </section>
   );
 };

@@ -125,13 +125,12 @@ export default function GameContainer() {
                   aiPlayer={gameMode === "ai" ? "player2" : undefined}
                 />
               </div>
-
-              <div className=" md:w-1/4">
+              <div className=" ml-auto  flex flex-col items-end md:w-1/4">
                 <div className="flex justify-between items-center mb-4">
                   <button
                     onClick={resetGame}
                   > 
-                    <Button containerClass={"flex bg-gray-700 w- text-white"} leftIcon={<ArrowLeft className=" h-4" />} title={"Back to Menu"} />
+                    <Button containerClass={"flex bg-gray-800 text-white"} leftIcon={<ArrowLeft className=" h-4" />} title={"Back to Menu"} />
                     
                   </button>
                 </div>

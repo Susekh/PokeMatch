@@ -6,7 +6,6 @@ import { TiLocationArrow } from "react-icons/ti";
 
 import Button from "./Button";
 import { Link } from "react-router";
-import GeometricLoader from "./loaders/HeroLoader";
 
 gsap.registerPlugin(ScrollTrigger);
 

@@ -3,9 +3,9 @@ import { Suspense, lazy } from "react";
 import NavBar from "./components/Navbar";
 import Footer from "./components/Footer";
 import ErrorPage from "./pages/ErrorPage";
+import HomePage from "./pages/HomePage";
 
 // Lazy-loaded pages
-const HomePage = lazy(() => import("./pages/HomePage"));
 const PlayGame = lazy(() => import("./pages/PlayGame"));
 const Info = lazy(() => import("./pages/Info"));
 const Instructions = lazy(() => import("./pages/Instructions"));

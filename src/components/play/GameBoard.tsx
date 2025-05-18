@@ -14,6 +14,7 @@ import {
   getHighScoreForMode,
   getHighestLevel,
 } from "../../utils/LocalStorageUtils";
+import { conf } from "../../utils/conf";
 
 interface EvolutionPokemon {
   id: number;
@@ -73,8 +74,8 @@ interface PlayerBoard {
 }
 
 // API endpoints
-const POKEMON_API = "https://pokeapi.co/api/v2/pokemon";
-const POKEMON_SPECIES_API = "https://pokeapi.co/api/v2/pokemon-species";
+const POKEMON_API = conf.POKEMON_API;
+const POKEMON_SPECIES_API = conf.POKEMON_SPECIES_API;
 
 export default function GameBoard({
   level,

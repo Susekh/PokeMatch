@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import PokemonCard from "./PokemonCard";
 import EvolutionAnimation from "./EvolutionAnimation";
-import { Loader2, Trophy } from "lucide-react";
+import { Trophy } from "lucide-react";
 import gsap from "gsap";
 import {
   getCardPairsForLevel,

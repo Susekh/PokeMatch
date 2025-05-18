@@ -1,5 +1,11 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { TiLocationArrow } from "react-icons/ti";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(ScrollTrigger);
+}
 
 export const BentoTilt = ({ children, className = "" }) => {
   const [transformStyle, setTransformStyle] = useState("");
@@ -25,10 +31,37 @@ export const BentoTilt = ({ children, className = "" }) => {
     setTransformStyle("");
   };
 
+  useEffect(() => {
+    if (!itemRef.current) return;
+
+    const el = itemRef.current;
+
+    const anim = gsap.fromTo(
+      el,
+      { autoAlpha: 0, y: 50, scale: 0.95 },
+      {
+        autoAlpha: 1,
+        y: 0,
+        scale: 1,
+        duration: 0.8,
+        ease: "power3.out",
+        scrollTrigger: {
+          trigger: el,
+          start: "top 85%",
+          toggleActions: "play none none reverse",
+        },
+      }
+    );
+
+    return () => {
+      anim.scrollTrigger?.kill();
+    };
+  }, []);
+
   return (
     <div
       ref={itemRef}
-      className={className}
+      className={`opacity-0 transition duration-700 ${className}`}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       style={{ transform: transformStyle }}

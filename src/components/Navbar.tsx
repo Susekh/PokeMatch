@@ -5,8 +5,9 @@ import { useEffect, useRef, useState } from "react";
 import { TiLocationArrow } from "react-icons/ti";
 
 import Button from "./Button";
+import { Link } from "react-router";
 
-const navItems = ["Nexus", "Vault", "Prologue", "About", "Contact"];
+const navItems = [ "Prologue", "About"];
 
 const NavBar = () => {
   const [isAudioPlaying, setIsAudioPlaying] = useState(false);
@@ -68,12 +69,15 @@ const NavBar = () => {
           {/* Logo and Button */}
           <div className="flex items-center gap-7">
             <img src="/img/logo.png" alt="logo" className="w-10" />
+            <Link to={"/play"}>
             <Button
               id="play-button"
               title="play now"
               rightIcon={<TiLocationArrow />}
               containerClass="bg-blue-50 md:flex hidden items-center justify-center gap-1"
             />
+            </Link>
+            
           </div>
 
           {/* Links and Audio */}

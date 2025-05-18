@@ -32,7 +32,7 @@ export default function GameModeSelection({ onSelectMode }: GameModeSelectionPro
       animate="show"
     >
       <motion.h2
-        className="text-3xl font-bold mb-10 text-center text-transparent bg-clip-text bg-gradient-to-r from-slate-100 to-slate-400"
+        className="text-3xl font-pokemon font-bold mb-10 text-center text-transparent bg-clip-text bg-gradient-to-r from-slate-100 to-slate-400"
         variants={item}
       >
         Select Game Mode
@@ -57,7 +57,7 @@ export default function GameModeSelection({ onSelectMode }: GameModeSelectionPro
               <Button
                 title="Start Game"
                 rightIcon={<Play className="w-4 h-4" />}
-                containerClass="w-full bg-gradient-to-r bg-gray-800 text-white border-2 border-yellow-500 hover:from-yellow-500 hover:to-amber-600 hover:text-black font-medium flex items-center justify-center gap-2"
+                containerClass="w-full bg-gradient-to-r bg-gray-900 text-white border-2 border-yellow-500 hover:from-yellow-500 hover:to-amber-600 hover:text-black font-medium flex items-center justify-center gap-2"
               />
             </button>
           </div>
@@ -81,7 +81,7 @@ export default function GameModeSelection({ onSelectMode }: GameModeSelectionPro
               <Button
                 title="Start Game"
                 rightIcon={<Play className="w-4 h-4" />}
-                containerClass="w-full bg-gradient-to-r bg-gray-800 border-2 border-blue-600 hover:from-blue-600 hover:to-indigo-700 text-white font-medium flex items-center justify-center gap-2"
+                containerClass="w-full bg-gradient-to-r bg-gray-900 border-2 border-blue-600 hover:from-blue-600 hover:to-indigo-700 text-white font-medium flex items-center justify-center gap-2"
               />
             </button>
           </div>
@@ -105,7 +105,7 @@ export default function GameModeSelection({ onSelectMode }: GameModeSelectionPro
               <Button
                 title="Start Game"
                 rightIcon={<Play className="w-4 h-4" />}
-                containerClass="w-full bg-gradient-to-r bg-gray-800 border-2 border-purple-800 hover:from-purple-600 hover:to-pink-700 text-white font-medium flex items-center justify-center gap-2"
+                containerClass="w-full bg-gradient-to-r bg-gray-950 border-2 border-purple-800 hover:from-purple-600 hover:to-pink-700 text-white font-medium flex items-center justify-center gap-2"
               />
             </button>
           </div>

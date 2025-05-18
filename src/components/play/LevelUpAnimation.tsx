@@ -52,50 +52,50 @@ export default function LevelUpAnimation({ level }: LevelUpAnimationProps) {
       "-=0.4"
     );
 
-    const bolts = document.querySelectorAll(".level-up-bolt");
+    // Animate bolts with keyframes for scale and opacity
+    const bolts = document.querySelectorAll<HTMLElement>(".level-up-bolt");
     bolts.forEach((bolt, i) => {
-      gsap.fromTo(
-        bolt,
-        {
-          x: Math.random() * 200 - 100,
-          y: -100,
-          opacity: 0,
-          rotate: Math.random() * 40 - 20,
-          scale: 0.5,
-        },
-        {
-          y: 100,
-          opacity: [0, 1, 0],
-          rotate: Math.random() * 40 - 20,
-          scale: [0.5, 1.3, 0.7],
-          duration: 1.2,
-          delay: i * 0.08,
-          ease: "power2.out",
-        }
-      );
+      gsap.set(bolt, {
+        x: Math.random() * 200 - 100,
+        y: -100,
+        rotate: Math.random() * 40 - 20,
+        scale: 0.5,
+        opacity: 0,
+      });
+
+      gsap.to(bolt, {
+        keyframes: [
+          { opacity: 0, scale: 0.5, duration: 0 },
+          { opacity: 1, scale: 1.3, duration: 0.6, ease: "power2.out" },
+          { opacity: 0, scale: 0.7, duration: 0.6, ease: "power2.out" },
+        ],
+        y: 100,
+        rotate: Math.random() * 40 - 20,
+        delay: i * 0.08,
+      });
     });
 
-    const particles = document.querySelectorAll(".level-up-particle");
+    // Animate particles with keyframes for scale and opacity
+    const particles = document.querySelectorAll<HTMLElement>(".level-up-particle");
     particles.forEach((particle, i) => {
-      gsap.fromTo(
-        particle,
-        {
-          xPercent: 0,
-          yPercent: 0,
-          scale: 0,
-          opacity: 0,
-        },
-        {
-          xPercent: Math.random() * 200 - 100,
-          yPercent: Math.random() * 200 - 100,
-          scale: [0, 1, 0],
-          opacity: [0, 1, 0],
-          duration: 2.5,
-          delay: i * 0.05,
-          ease: "power2.out",
-          repeat: 1,
-        }
-      );
+      gsap.set(particle, {
+        xPercent: 0,
+        yPercent: 0,
+        scale: 0,
+        opacity: 0,
+      });
+
+      gsap.to(particle, {
+        keyframes: [
+          { scale: 0, opacity: 0, duration: 0 },
+          { scale: 1, opacity: 1, duration: 1.25, ease: "power2.out" },
+          { scale: 0, opacity: 0, duration: 1.25, ease: "power2.out" },
+        ],
+        xPercent: Math.random() * 200 - 100,
+        yPercent: Math.random() * 200 - 100,
+        delay: i * 0.05,
+        repeat: 1,
+      });
     });
 
     return () => {
@@ -104,14 +104,20 @@ export default function LevelUpAnimation({ level }: LevelUpAnimationProps) {
   }, [level]);
 
   return (
-    <div ref={containerRef} className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none">
+    <div
+      ref={containerRef}
+      className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none"
+    >
       <div className="absolute inset-0 bg-gradient-to-br from-violet-900 via-black to-indigo-950 opacity-90 pointer-events-none animate-pulse" />
 
       <div className="relative z-10 flex flex-col items-center pointer-events-none">
         {/* Bolts */}
         <div className="relative w-full h-32 -mt-10">
           {Array.from({ length: 8 }).map((_, i) => (
-            <div key={i} className="level-up-bolt absolute left-1/2 top-0 transform -translate-x-1/2">
+            <div
+              key={i}
+              className="level-up-bolt absolute left-1/2 top-0 transform -translate-x-1/2"
+            >
               <Zap className="w-10 h-10 text-yellow-400 drop-shadow-glow animate-spin-slow" />
             </div>
           ))}

@@ -14,7 +14,6 @@ body {
 
 
 @layer base {
-
   @font-face {
     font-family: "general";
     src: url("/fonts/general.woff2") format("woff2");
@@ -29,8 +28,21 @@ body {
     font-family: "robert-regular";
     src: url("/fonts/robert-regular.woff2") format("woff2");
   }
-  
+
+  @font-face {
+    font-family: "pokemon";
+    src: url("/fonts/Pokemon-Solid.ttf") format("truetype");
+    font-weight: normal;
+    font-style: normal;
+  }
+   @font-face {
+    font-family: "pokemon-hollow";
+    src: url("/fonts/Pokemon-Hollow.ttf") format("truetype");
+    font-weight: normal;
+    font-style: normal;
+  }
 }
+
 
 @layer utilities {
   .border-hsla {

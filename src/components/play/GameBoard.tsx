@@ -30,6 +30,16 @@ interface Pokemon {
   };
 }
 
+interface Species {
+  name: string;
+  url: string;
+}
+
+interface EvolutionNode {
+  species: Species;
+  evolves_to: EvolutionNode[];
+}
+
 interface Card extends Pokemon {
   flipped: boolean;
   matched: boolean;
@@ -73,7 +83,7 @@ export default function GameBoard({
   onMatchFound,
   onNoMatch,
   onLevelComplete,
-  onGameComplete,
+  // onGameComplete,
   aiPlayer,
   aiDifficulty = "medium",
   score = 0,
@@ -110,7 +120,8 @@ export default function GameBoard({
   // Keep track of the previous player to detect player changes
   const previousPlayerRef = useRef<"player1" | "player2" | null>(null);
 
-  const aiTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const aiTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   const aiMemory = useRef<Map<string, number[]>>(new Map());
   const boardRef = useRef<HTMLDivElement>(null);
 
@@ -173,9 +184,9 @@ export default function GameBoard({
   }, []);
 
   // Get current board based on current player
-  const getCurrentBoard = useCallback(() => {
-    return boards[currentPlayer];
-  }, [boards, currentPlayer]);
+  // const getCurrentBoard = useCallback(() => {
+  //   return boards[currentPlayer];
+  // }, [boards, currentPlayer]);
 
   // Update current board
   const updateCurrentBoard = useCallback(
@@ -491,7 +502,7 @@ export default function GameBoard({
         // Check if this is in the first evolution
         if (evolutionData.chain.evolves_to.length > 0) {
           const firstEvolution = evolutionData.chain.evolves_to.find(
-            (e: any) => e.species.name === currentPokemonName
+            (e: EvolutionNode) => e.species.name === currentPokemonName
           );
 
           if (firstEvolution && firstEvolution.evolves_to.length > 0) {
@@ -743,10 +754,27 @@ export default function GameBoard({
 
       if (useMemory) {
         // Check if we can make a match from memory
-        for (const [cardName, positions] of aiMemory.current.entries()) {
+        for (const [positions] of aiMemory.current.entries()) {
           // Find unflipped positions for this card type
-          const availablePositions = positions.filter(
+          // Ensure `positions` is a string before splitting
+          if (typeof positions !== "string") {
+            console.error(
+              "Expected positions to be a string but got:",
+              positions
+            );
+            continue;
+          }
+
+          const positionsArray: number[] = positions
+            .split(",")
+            .map((val) => Number(val))
+            .filter((num) => Number.isInteger(num));
+
+          const availablePositions = positionsArray.filter(
             (pos) =>
+              pos >= 0 &&
+              pos < currentBoard.cards.length &&
+              currentBoard.cards[pos] &&
               !currentBoard.cards[pos].flipped &&
               !currentBoard.cards[pos].matched
           );

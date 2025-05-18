@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, } from "react";
 import { TiLocationArrow } from "react-icons/ti";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -7,15 +7,19 @@ if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
 }
 
-export const BentoTilt = ({ children, className = "" }) => {
-  const [transformStyle, setTransformStyle] = useState("");
-  const itemRef = useRef(null);
+interface BentoTiltProps {
+  children: React.ReactNode;
+  className?: string;
+}
 
-  const handleMouseMove = (event) => {
+export const BentoTilt: React.FC<BentoTiltProps> = ({ children, className = "" }) => {
+  const [transformStyle, setTransformStyle] = useState<string>("");
+  const itemRef = useRef<HTMLDivElement | null>(null);
+
+  const handleMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
     if (!itemRef.current) return;
 
-    const { left, top, width, height } =
-      itemRef.current.getBoundingClientRect();
+    const { left, top, width, height } = itemRef.current.getBoundingClientRect();
 
     const relativeX = (event.clientX - left) / width;
     const relativeY = (event.clientY - top) / height;
@@ -71,7 +75,13 @@ export const BentoTilt = ({ children, className = "" }) => {
   );
 };
 
-export const BentoCard = ({ src, title, description }) => {
+interface BentoCardProps {
+  src: string;
+  title: React.ReactNode;
+  description?: string;
+}
+
+export const BentoCard: React.FC<BentoCardProps> = ({ src, title, description }) => {
   return (
     <div className="relative size-full overflow-hidden rounded-xl shadow-2xl">
       <video
@@ -83,7 +93,7 @@ export const BentoCard = ({ src, title, description }) => {
       />
       <div className="relative z-10 flex size-full flex-col justify-between p-5 text-blue-50 bg-black/40">
         <div>
-          <h1 className="bento-title text-yellow-300 text-2xl md:text-3xl font-bold drop-shadow-lg">
+          <h1 className="bento-title font-pokemon-hollow text-yellow-300 text-2xl md:text-3xl font-bold drop-shadow-lg">
             {title}
           </h1>
           {description && (
@@ -97,11 +107,11 @@ export const BentoCard = ({ src, title, description }) => {
   );
 };
 
-const Features = () => (
+const Features: React.FC = () => (
   <section className="bg-black pb-52">
     <div className="container mx-auto px-4 md:px-10">
       <div className="px-5 py-32 text-center">
-        <p className="text-lg text-blue-50">Enter the Pokématch Zone</p>
+        <p className="text-lg font-pokemon text-blue-50">Enter the Pokématch Zone</p>
         <p className="mt-2 max-w-md mx-auto text-base text-blue-50 opacity-60">
           Dive into the ultimate memory challenge — flip, match, and train your
           mind in a nostalgic adventure full of familiar faces and evolving fun.
@@ -143,7 +153,7 @@ const Features = () => (
 
         <BentoTilt className="bento-tilt_2 col-span-1 md:col-span-2 lg:col-span-1">
           <div className="flex size-full flex-col justify-between bg-violet-300 p-5 rounded-xl shadow-2xl">
-            <h1 className="bento-title max-w-64 text-black text-2xl md:text-3xl font-bold">
+            <h1 className="bento-title font-pokemon-hollow max-w-64 text-black text-2xl md:text-3xl font-bold">
               M<b>o</b>re po<b>k</b>é aweso<b>m</b>eness s<b>o</b>on.
             </h1>
             <TiLocationArrow className="m-5 scale-[4] self-end text-black" />

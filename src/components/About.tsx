@@ -36,7 +36,7 @@ const About = () => {
 
         <AnimatedTitle
           title="Sharpen your <b>mind</b><br />& catch them <b>all</b>!"
-          containerClass="mt-4 text-center text-white text-3xl md:text-4xl lg:text-5xl"
+          containerClass="mt-4 font-pokemon-hollow text-center text-white text-3xl md:text-4xl lg:text-5xl"
         />
 
         <div className="about-subtext text-center text-sm md:text-base text-white px-4">

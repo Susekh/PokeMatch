@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Zap, Trophy, ArrowLeft, Sparkles } from "lucide-react";
+import { Trophy, ArrowLeft} from "lucide-react";
 import ScoreTracker from "./ScoreTracker";
 import LevelUpAnimation from "./LevelUpAnimation";
 import GameModeSelection from "./GameModeSelection";
@@ -131,7 +131,6 @@ export default function GameContainer() {
                     onClick={resetGame}
                   > 
                     <Button containerClass={"flex bg-gray-800 text-white"} leftIcon={<ArrowLeft className=" h-4" />} title={"Back to Menu"} />
-                    
                   </button>
                 </div>
 
@@ -174,7 +173,6 @@ export default function GameContainer() {
             </div>
 
             <button
-              size="lg"
               onClick={resetGame}
               className="bg-gradient-to-r from-yellow-500 to-amber-600 hover:from-yellow-600 hover:to-amber-700 text-black font-bold"
             >

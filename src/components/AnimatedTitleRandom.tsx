@@ -5,8 +5,13 @@ import clsx from "clsx";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const AnimatedTitleRandom = ({ title, containerClass }) => {
-  const containerRef = useRef(null);
+interface AnimatedTitleRandomProps {
+  title: string;
+  containerClass?: string;
+}
+
+const AnimatedTitleRandom: React.FC<AnimatedTitleRandomProps> = ({ title, containerClass }) => {
+  const containerRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -37,7 +42,7 @@ const AnimatedTitleRandom = ({ title, containerClass }) => {
       });
     }, containerRef);
 
-    return () => ctx.revert(); // Clean up on unmount
+    return () => ctx.revert();
   }, []);
 
   return (

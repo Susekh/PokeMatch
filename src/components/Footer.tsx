@@ -1,4 +1,5 @@
 import { FaDiscord, FaTwitter, FaYoutube, FaMedium } from "react-icons/fa";
+import { Link } from "react-router";
 
 const socialLinks = [
   { href: "https://discord.com", icon: <FaDiscord />, label: "Discord" },
@@ -33,12 +34,12 @@ const Footer = () => {
         </div>
 
         {/* Right: Privacy Link */}
-        <a
-          href="#privacy-policy"
+        <Link
+          to={"/privacy-policy"}
           className="text-sm text-white/70 hover:text-white transition duration-300 text-center md:text-right"
         >
           Privacy Policy
-        </a>
+        </Link>
       </div>
     </footer>
   );

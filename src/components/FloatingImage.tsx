@@ -1,14 +1,13 @@
 import gsap from "gsap";
 import { useRef } from "react";
-import AnimatedTitle from "./AnimatedTitle";
 import Button from "./Button";
 import AnimatedTitleRandom from "./AnimatedTitleRandom";
 import { Link } from "react-router";
 
-const FloatingImage = () => {
-  const frameRef = useRef(null);
+const FloatingImage: React.FC = () => {
+  const frameRef = useRef<HTMLImageElement | null>(null);
 
-  const handleMouseMove = (e) => {
+  const handleMouseMove = (e: React.MouseEvent<HTMLImageElement>) => {
     const { clientX, clientY } = e;
     const element = frameRef.current;
 
@@ -53,7 +52,7 @@ const FloatingImage = () => {
           enter the pokématch realm
         </p>
 
-        <div className="relative text-center lg:mr-96 size-full">
+        <div className="relative font-pokemon text-center lg:mr-96 size-full">
           <AnimatedTitleRandom
             title="discover the magic of<br />memory and m<b>o</b>nsters"
             containerClass="mt-5 pointer-events-none mix-blend-difference relative z-10"
@@ -112,12 +111,12 @@ const FloatingImage = () => {
               and evolve your way to glory.
             </p>
 
-            <Link to={"/play"}>
-            <Button
-              id="realm-btn"
-              title="start matching"
-              containerClass="mt-5"
-            />
+            <Link to="/play">
+              <Button
+                id="realm-btn"
+                title="start matching"
+                containerClass="mt-5"
+              />
             </Link>
           </div>
         </div>

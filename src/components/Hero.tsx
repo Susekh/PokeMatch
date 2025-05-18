@@ -16,7 +16,7 @@ const Hero = () => {
   const [videoIndex, setVideoIndex] = useState(1);
   const totalVideos = 4;
 
-  const getVideoSrc = (index) => `videos/hero-${index}.mp4`;
+  const getVideoSrc = (index : number) => `videos/hero-${index}.mp4`;
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -68,10 +68,10 @@ const Hero = () => {
 
       {/* Hero Content */}
 <div className="relative z-20 flex min-h-screen w-full flex-col items-center justify-center text-center px-6 py-12 sm:py-20">
-  <h1 className="text-5xl uppercase sm:text-7xl font-bold font-pokemon mb-6 text-yellow-300 drop-shadow-lg leading-tight">
+  <h1 className="text-5xl uppercase sm:text-7xl font-bold font-pokemon-hollow mb-6 text-yellow-300 drop-shadow-lg leading-tight">
     Memory Match
   </h1>
-  <p className="text-lg sm:text-2xl text-blue-100 max-w-2xl mb-8 sm:mb-10">
+  <p className="text-lg sm:text-2xl font-pokemon text-blue-100 max-w-2xl mb-8 sm:mb-10">
     Flip the cards. Train your brain. Beat your high score.
   </p>
   <Link to={"/play"} >

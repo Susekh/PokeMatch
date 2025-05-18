@@ -27,28 +27,22 @@ export default function EvolutionAnimation({ basePokemon, evolvedPokemon, onComp
   useEffect(() => {
     if (!containerRef.current) return
 
-    // Create a GSAP timeline for the evolution animation
     const tl = gsap.timeline({
       onComplete: () => {
-        // Wait a bit before calling onComplete
         setTimeout(onComplete, 1000)
       },
     })
 
-    // Fade in the overlay
     tl.fromTo(containerRef.current, { opacity: 0 }, { opacity: 1, duration: 0.5 })
 
-    // Animate in the title and subtitle
     tl.fromTo(
       [titleRef.current, subtitleRef.current],
       { opacity: 0, y: -20 },
       { opacity: 1, y: 0, stagger: 0.2, duration: 0.5 },
     )
 
-    // Animate the base Pokémon
     tl.fromTo(baseRef.current, { scale: 0.8, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.5 })
 
-    // Glowing animation for base Pokémon
     tl.to(baseRef.current, {
       boxShadow: "0 0 20px 10px rgba(250, 204, 21, 0.7)",
       duration: 1.5,
@@ -56,17 +50,14 @@ export default function EvolutionAnimation({ basePokemon, evolvedPokemon, onComp
       yoyo: true,
     })
 
-    // Move base Pokémon to the left and fade out
     tl.to(baseRef.current, {
       x: -150,
       opacity: 0,
       duration: 1,
     })
 
-    // Show the arrow
     tl.fromTo(".evolution-arrow", { opacity: 0, scale: 0 }, { opacity: 1, scale: 1, duration: 0.5 }, "-=0.5")
 
-    // Bring in the evolved Pokémon
     tl.fromTo(
       evolvedRef.current,
       { x: 150, opacity: 0, scale: 1.2 },
@@ -74,30 +65,22 @@ export default function EvolutionAnimation({ basePokemon, evolvedPokemon, onComp
       "-=0.5",
     )
 
-    // Show the result text
     tl.fromTo(resultRef.current, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 })
 
-    // Create sparkle animations
-    const sparkles = document.querySelectorAll(".evolution-sparkle")
+    // Animate sparkles using keyframes
+    const sparkles = document.querySelectorAll<HTMLElement>(".evolution-sparkle")
     sparkles.forEach((sparkle, i) => {
-      gsap.fromTo(
-        sparkle,
-        {
-          opacity: 0,
-          scale: 0.5,
-          x: 0,
-          y: 0,
-        },
-        {
-          opacity: [0, 1, 0],
-          scale: [0.5, 1.5, 0.5],
-          x: Math.cos((i / sparkles.length) * Math.PI * 2) * 50,
-          y: Math.sin((i / sparkles.length) * Math.PI * 2) * 50,
-          repeat: -1,
-          duration: 2,
-          delay: i * 0.2,
-        },
-      )
+      gsap.to(sparkle, {
+        keyframes: [
+          { opacity: 1, scale: 1.5 },
+          { opacity: 0, scale: 0.5 },
+        ],
+        x: Math.cos((i / sparkles.length) * Math.PI * 2) * 50,
+        y: Math.sin((i / sparkles.length) * Math.PI * 2) * 50,
+        repeat: -1,
+        duration: 2,
+        delay: i * 0.2,
+      })
     })
 
     return () => {
@@ -111,10 +94,10 @@ export default function EvolutionAnimation({ basePokemon, evolvedPokemon, onComp
 
       <div className="relative z-10 flex flex-col items-center">
         <div className="text-center mb-8">
-          <h2 ref={titleRef} className="text-3xl font-bold text-white mb-2">
+          <h2 ref={titleRef} className="text-3xl font-pokemon-hollow font-bold text-white mb-2">
             Evolution!
           </h2>
-          <p ref={subtitleRef} className="text-yellow-300 text-lg">
+          <p ref={subtitleRef} className="text-yellow-300 font-pokemon text-lg">
             {basePokemon.name.charAt(0).toUpperCase() + basePokemon.name.slice(1)} is evolving...
           </p>
         </div>
@@ -128,7 +111,6 @@ export default function EvolutionAnimation({ basePokemon, evolvedPokemon, onComp
                 alt={basePokemon.name}
                 className="w-40 h-40 object-contain"
               />
-
               {/* Sparkles */}
               {Array.from({ length: 8 }).map((_, i) => (
                 <div key={i} className="evolution-sparkle absolute">

@@ -3,18 +3,20 @@ import gsap from "gsap";
 import { useWindowScroll } from "react-use";
 import { useEffect, useRef, useState } from "react";
 import { TiLocationArrow } from "react-icons/ti";
-
 import Button from "./Button";
 import { Link } from "react-router";
 
-const navItems = [ "Prologue", "About"];
+// If you're using react-router-dom instead of react-router:
+/// import { Link } from "react-router-dom";
 
-const NavBar = () => {
+const navItems = ["Instructions", "About"];
+
+const NavBar: React.FC = () => {
   const [isAudioPlaying, setIsAudioPlaying] = useState(false);
   const [isIndicatorActive, setIsIndicatorActive] = useState(false);
 
-  const audioElementRef = useRef(null);
-  const navContainerRef = useRef(null);
+  const audioElementRef = useRef<HTMLAudioElement | null>(null);
+  const navContainerRef = useRef<HTMLDivElement | null>(null);
 
   const { y: currentScrollY } = useWindowScroll();
   const [isNavVisible, setIsNavVisible] = useState(true);
@@ -26,30 +28,39 @@ const NavBar = () => {
   };
 
   useEffect(() => {
+    const audio = audioElementRef.current;
+    if (!audio) return;
+
     if (isAudioPlaying) {
-      audioElementRef.current.play();
+      void audio.play(); // void to silence Promise warning
     } else {
-      audioElementRef.current.pause();
+      audio.pause();
     }
   }, [isAudioPlaying]);
 
   useEffect(() => {
+    const nav = navContainerRef.current;
+    if (!nav) return;
+
     if (currentScrollY === 0) {
       setIsNavVisible(true);
-      navContainerRef.current.classList.remove("floating-nav");
+      nav.classList.remove("floating-nav");
     } else if (currentScrollY > lastScrollY) {
       setIsNavVisible(false);
-      navContainerRef.current.classList.add("floating-nav");
+      nav.classList.add("floating-nav");
     } else if (currentScrollY < lastScrollY) {
       setIsNavVisible(true);
-      navContainerRef.current.classList.add("floating-nav");
+      nav.classList.add("floating-nav");
     }
 
     setLastScrollY(currentScrollY);
   }, [currentScrollY, lastScrollY]);
 
   useEffect(() => {
-    gsap.to(navContainerRef.current, {
+    const nav = navContainerRef.current;
+    if (!nav) return;
+
+    gsap.to(nav, {
       y: isNavVisible ? 0 : -100,
       opacity: isNavVisible ? 1 : 0,
       duration: 0.2,
@@ -68,29 +79,31 @@ const NavBar = () => {
         <nav className="flex size-full items-center justify-between px-4 py-2">
           {/* Logo and Button */}
           <div className="flex items-center gap-7">
-            <img src="/img/logo.png" alt="logo" className="w-10" />
-            <Link to={"/play"}>
-            <Button
-              id="play-button"
-              title="play now"
-              rightIcon={<TiLocationArrow />}
-              containerClass="bg-blue-50 md:flex hidden items-center justify-center gap-1"
-            />
+            <Link to="/">
+              <img src="/img/logo.png" alt="logo" className="w-10" />
             </Link>
-            
+
+            <Link to="/play">
+              <Button
+                id="play-button"
+                title="play now"
+                rightIcon={<TiLocationArrow />}
+                containerClass="bg-blue-50 md:flex hidden items-center justify-center gap-1"
+              />
+            </Link>
           </div>
 
           {/* Links and Audio */}
           <div className="flex h-full items-center">
             <div className="hidden md:block">
               {navItems.map((item, index) => (
-                <a
+                <Link
                   key={index}
-                  href={`#${item.toLowerCase()}`}
+                  to={`/${item.toLowerCase()}`}
                   className="nav-hover-btn text-white"
                 >
                   {item}
-                </a>
+                </Link>
               ))}
             </div>
 

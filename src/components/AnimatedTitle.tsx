@@ -5,8 +5,13 @@ import clsx from "clsx";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const AnimatedTitle = ({ title, containerClass }) => {
-  const containerRef = useRef(null);
+interface AnimatedTitleProps {
+  title: string;
+  containerClass?: string;
+}
+
+const AnimatedTitle: React.FC<AnimatedTitleProps> = ({ title, containerClass }) => {
+  const containerRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -31,7 +36,7 @@ const AnimatedTitle = ({ title, containerClass }) => {
       );
     }, containerRef);
 
-    return () => ctx.revert(); // Clean up on unmount
+    return () => ctx.revert();
   }, []);
 
   return (

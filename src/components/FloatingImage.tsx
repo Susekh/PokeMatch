@@ -115,7 +115,7 @@ const FloatingImage: React.FC = () => {
               <Button
                 id="realm-btn"
                 title="start matching"
-                containerClass="mt-5"
+                containerClass="mt-5 bg-yellow-200 hover:bg-yellow-300"
               />
             </Link>
           </div>

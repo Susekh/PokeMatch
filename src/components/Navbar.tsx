@@ -95,7 +95,7 @@ const NavBar: React.FC = () => {
 
           {/* Links and Audio */}
           <div className="flex h-full items-center">
-            <div className="hidden md:block">
+            <div className="text-xs md:block">
               {navItems.map((item, index) => (
                 <Link
                   key={index}

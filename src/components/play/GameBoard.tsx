@@ -15,6 +15,7 @@ import {
   getHighestLevel,
 } from "../../utils/LocalStorageUtils";
 import { conf } from "../../utils/conf";
+import ShimmerPokemonCard from "../loaders/ShimmerPokemonCard";
 
 interface EvolutionPokemon {
   id: number;
@@ -870,10 +871,10 @@ export default function GameBoard({
   // Loading state
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center h-64">
-        <Loader2 className="w-12 h-12 text-yellow-300 animate-spin mb-4" />
-        <p className="text-lg">Loading Pokémon...</p>
-      </div>
+      <div className="min-h-screen bg-gray-900 text-white">
+      <h1 className="text-xl font-semibold p-4">Loading Pokémons...</h1>
+      <ShimmerPokemonCard />
+    </div>
     );
   }
 

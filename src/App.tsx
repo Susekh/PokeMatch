@@ -1,5 +1,5 @@
 import { Route, Routes } from "react-router";
-import { Suspense, lazy } from "react";
+import { Suspense } from "react";
 import NavBar from "./components/Navbar";
 import Footer from "./components/Footer";
 import ErrorPage from "./pages/ErrorPage";

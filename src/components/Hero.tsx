@@ -139,7 +139,7 @@ const Hero = () => {
             loop
             muted
             playsInline
-            className="h-full w-full object-cover"
+            className="h-full w-full object-cover blur-md"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent z-10" />
         </div>

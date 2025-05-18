@@ -118,7 +118,7 @@ const GeometricLoader = () => {
   ]
 
   return (
-    <div className="flex h-screen w-screen items-center justify-center bg-gray-900">
+    <div className="flex h-screen w-screen items-center justify-center bg-black">
       <div ref={containerRef} className="relative w-64 h-64 flex items-center justify-center">
         {shapes.map((shape, i) => (
           <div

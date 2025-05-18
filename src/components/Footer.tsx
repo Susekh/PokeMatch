@@ -1,11 +1,9 @@
-import { FaDiscord, FaTwitter, FaYoutube, FaMedium } from "react-icons/fa";
+import {  FaLinkedin, FaGithub } from "react-icons/fa";
 import { Link } from "react-router";
 
 const socialLinks = [
-  { href: "https://discord.com", icon: <FaDiscord />, label: "Discord" },
-  { href: "https://twitter.com", icon: <FaTwitter />, label: "Twitter" },
-  { href: "https://youtube.com", icon: <FaYoutube />, label: "YouTube" },
-  { href: "https://medium.com", icon: <FaMedium />, label: "Medium" },
+  { href: "hhttps://github.com/Susekh/PokeMatch", icon: <FaGithub />, label: "Github" },
+  { href: "https://medium.comwww.linkedin.com/in/subhranshu-sekhar-khilar-544a5b275", icon: <FaLinkedin />, label: "LinkedIn" },
 ];
 
 const Footer = () => {

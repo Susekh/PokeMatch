@@ -28,7 +28,7 @@ const Info = () => {
         });
       },
       {
-        threshold: 0.1, // Trigger when 10% of section is visible
+        threshold: 0.1, 
       }
     );
 
@@ -75,7 +75,7 @@ const Info = () => {
           <h3 className="text-lg font-semibold mb-3">Find me on</h3>
           <div className="flex gap-8">
             <a
-              href="https://github.com/your-github-username"
+              href="https://github.com/Susekh"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-2 text-gray-300 hover:text-white transition-colors"
@@ -83,7 +83,7 @@ const Info = () => {
               <FaGithub size={22} /> GitHub
             </a>
             <a
-              href="https://linkedin.com/in/your-linkedin-username"
+              href="https://www.linkedin.com/in/subhranshu-sekhar-khilar-544a5b275/"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-2 text-gray-300 hover:text-white transition-colors"

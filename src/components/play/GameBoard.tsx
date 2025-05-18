@@ -1,10 +1,20 @@
 import { useState, useEffect, useRef, useCallback } from "react"
 import PokemonCard from "./PokemonCard"
 import EvolutionAnimation from "./EvolutionAnimation"
-import { Loader2 } from "lucide-react"
+import { Loader2, Trophy } from "lucide-react"
 import gsap from "gsap"
+import { 
+  getCardPairsForLevel, 
+  getPokemonOffsetForLevel, 
+  getGridColumnsForCards,
+  getAIDifficultyForLevel
+} from "../../utils/DifficultyUtils"
+import {
+  saveHighScore,
+  getHighScoreForMode,
+  getHighestLevel
+} from "../../utils/LocalStorageUtils"
 
-// Type definitions for better type safety
 interface EvolutionPokemon {
   id: number
   name: string
@@ -36,12 +46,20 @@ interface GameBoardProps {
   onGameComplete: () => void
   aiPlayer?: "player1" | "player2"
   aiDifficulty?: "easy" | "medium" | "hard"
+  score?: number
 }
 
 interface EvolutionData {
   basePokemon: Pokemon
   evolvedPokemon: EvolutionPokemon
   cardIndices: number[]
+}
+
+interface PlayerBoard {
+  cards: Card[]
+  pokemon: Pokemon[]
+  matchedPairs: number
+  consecutiveMatches: number
 }
 
 // API endpoints
@@ -58,39 +76,84 @@ export default function GameBoard({
   onGameComplete,
   aiPlayer,
   aiDifficulty = "medium",
+  score = 0
 }: GameBoardProps) {
-  const [pokemon, setPokemon] = useState<Pokemon[]>([])
-  const [cards, setCards] = useState<Card[]>([])
+  // Store separate boards for each player
+  const [boards, setBoards] = useState<{
+    player1: PlayerBoard,
+    player2: PlayerBoard
+  }>({
+    player1: {
+      cards: [],
+      pokemon: [],
+      matchedPairs: 0,
+      consecutiveMatches: 0
+    },
+    player2: {
+      cards: [],
+      pokemon: [],
+      matchedPairs: 0,
+      consecutiveMatches: 0
+    }
+  })
+  
   const [loading, setLoading] = useState(true)
   const [selectedCards, setSelectedCards] = useState<number[]>([])
-  const [matchedPairs, setMatchedPairs] = useState(0)
   const [disableFlip, setDisableFlip] = useState(false)
-  const [consecutiveMatches, setConsecutiveMatches] = useState(0)
   const [showEvolution, setShowEvolution] = useState(false)
   const [evolutionData, setEvolutionData] = useState<EvolutionData | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [highScore, setHighScoreInGameBoard] = useState(0)
+  const [newHighScore, setNewHighScore] = useState(false)
+  // Keep track of the previous player to detect player changes
+  const previousPlayerRef = useRef<"player1" | "player2" | null>(null)
 
   const aiTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const aiMemory = useRef<Map<string, number[]>>(new Map())
   const boardRef = useRef<HTMLDivElement>(null)
-  const totalPairs = useRef(getNumberOfPairs(level))
+  
+  // Use dynamic card pairs based on level
+  const totalPairs = useRef(getCardPairsForLevel(level))
+  
+  // Effective AI difficulty based on level and selected difficulty
+  const effectiveAIDifficulty = getAIDifficultyForLevel(level, aiDifficulty)
 
-  // Calculate number of pairs based on level with memoization
-  function getNumberOfPairs(currentLevel: number): number {
-    if (currentLevel <= 3) return 6
-    if (currentLevel <= 6) return 8
-    if (currentLevel <= 9) return 10
-    return 12
-  }
-
-  // Get grid columns based on number of cards
+  // Get grid columns based on number of cards 
   const getGridColumns = useCallback(() => {
-    const pairs = totalPairs.current
-    if (pairs <= 6) return "grid-cols-3 md:grid-cols-4"
-    if (pairs <= 8) return "grid-cols-4"
-    if (pairs <= 10) return "grid-cols-4 md:grid-cols-5"
-    return "grid-cols-4 md:grid-cols-6"
+    return getGridColumnsForCards(totalPairs.current)
   }, [])
+
+  // Track player changes and reset selected cards when player changes
+  useEffect(() => {
+    if (previousPlayerRef.current !== null && previousPlayerRef.current !== currentPlayer) {
+      // Player has changed, reset selected cards and flip state
+      setSelectedCards([])
+      setDisableFlip(false)
+    }
+    
+    // Update previous player reference
+    previousPlayerRef.current = currentPlayer
+  }, [currentPlayer])
+
+  // Update high score when score changes
+  useEffect(() => {
+    // Only check high score for single player mode
+    if (gameMode === "single" || (gameMode === "ai" && currentPlayer === "player1")) {
+      const currentHighScore = getHighScoreForMode(gameMode)
+
+      console.log("Highest score ::", currentHighScore);
+      
+      
+      setHighScoreInGameBoard(currentHighScore)
+      
+      // Update high score if current score is higher
+      if (score > currentHighScore) {
+        saveHighScore(score, level, gameMode)
+        setHighScoreInGameBoard(score)
+        setNewHighScore(true)
+      }
+    }
+  }, [score, level, gameMode, currentPlayer])
 
   // Shuffle array using Fisher-Yates algorithm for better randomization
   const shuffleArray = useCallback(<T,>(array: T[]): T[] => {
@@ -102,18 +165,36 @@ export default function GameBoard({
     return newArray
   }, [])
 
+  // Get current board based on current player
+  const getCurrentBoard = useCallback(() => {
+    return boards[currentPlayer]
+  }, [boards, currentPlayer])
+
+  // Update current board
+  const updateCurrentBoard = useCallback((updater: (board: PlayerBoard) => PlayerBoard) => {
+    setBoards(prevBoards => ({
+      ...prevBoards,
+      [currentPlayer]: updater(prevBoards[currentPlayer])
+    }))
+  }, [currentPlayer])
+
   // Check if level is complete
   const checkLevelCompletion = useCallback(() => {
-    if (matchedPairs + 1 >= totalPairs.current) {
+    const currentBoard = boards[currentPlayer]
+    
+    if (currentBoard.matchedPairs + 1 >= totalPairs.current) {
       setTimeout(() => {
-        if (level >= 10) {
-          onGameComplete()
-        } else {
-          onLevelComplete()
+        // Save highest level reached
+        const highestLevel = getHighestLevel()
+        if (level > highestLevel) {
+          localStorage.setItem('pokemon-memory-highest-level', String(level))
         }
+        
+        // No game "completion" in infinite mode, just move to next level
+        onLevelComplete()
       }, 800)
     }
-  }, [level, matchedPairs, onGameComplete, onLevelComplete])
+  }, [level, boards, currentPlayer, onLevelComplete])
 
   // Handle evolution completion
   const handleEvolutionComplete = useCallback(() => {
@@ -121,8 +202,8 @@ export default function GameBoard({
 
     if (evolutionData) {
       // Evolve the matched cards in place
-      setCards(prevCards => {
-        const updatedCards = [...prevCards]
+      updateCurrentBoard(board => {
+        const updatedCards = [...board.cards]
         
         // Update both matched cards with evolved Pokémon data
         evolutionData.cardIndices.forEach((index) => {
@@ -135,11 +216,14 @@ export default function GameBoard({
           }
         })
         
-        return updatedCards
+        return {
+          ...board,
+          cards: updatedCards,
+          matchedPairs: board.matchedPairs + 1
+        }
       })
       
       setSelectedCards([])
-      setMatchedPairs((prev) => prev + 1)
       setDisableFlip(false)
 
       // Highlight evolved cards with GSAP
@@ -165,125 +249,141 @@ export default function GameBoard({
       // Check if level is complete
       checkLevelCompletion()
     }
-  }, [evolutionData, checkLevelCompletion])
+  }, [evolutionData, updateCurrentBoard, checkLevelCompletion])
 
   // Handle card flipping
-  const handleCardFlip = useCallback((index: number) => {
-    if (disableFlip || cards[index]?.flipped || cards[index]?.matched || selectedCards.length >= 2) {
-      return
+const handleCardFlip = useCallback((index: number) => {
+  const currentBoard = boards[currentPlayer];
+
+  if (
+    disableFlip ||
+    currentBoard.cards[index]?.flipped ||
+    currentBoard.cards[index]?.matched ||
+    selectedCards.length >= 2
+  ) {
+    return;
+  }
+
+  // Flip the card visually
+  const cardElement = document.querySelector(`[data-card-id="${index}"]`) as HTMLElement;
+  if (cardElement) {
+    gsap.to(cardElement, {
+      rotationY: 180,
+      duration: 0.1,
+      ease: "expo",
+    });
+  }
+
+  // Update flipped state
+  updateCurrentBoard((board) => {
+    const updatedCards = [...board.cards];
+    updatedCards[index] = { ...updatedCards[index], flipped: true };
+    return { ...board, cards: updatedCards };
+  });
+
+  // Track selection
+  const newSelectedCards = [...selectedCards, index];
+  setSelectedCards(newSelectedCards);
+
+  // AI memory update
+  if (gameMode === "ai" && currentPlayer === aiPlayer) {
+    const cardName = currentBoard.cards[index].name;
+    const currentPositions = aiMemory.current.get(cardName) || [];
+    if (!currentPositions.includes(index)) {
+      aiMemory.current.set(cardName, [...currentPositions, index]);
     }
+  }
 
-    // Flip the card with GSAP animation
-    const cardElement = document.querySelector(`[data-card-id="${index}"]`) as HTMLElement
-    if (cardElement) {
-      gsap.to(cardElement, {
-        rotationY: 180,
-        duration: 0.6,
-        ease: "power2.out",
-      })
-    }
+  // Match logic
+  if (newSelectedCards.length === 2) {
+    setDisableFlip(true);
 
-    // Update card state
-    setCards(prevCards => {
-      const updatedCards = [...prevCards]
-      updatedCards[index].flipped = true
-      return updatedCards
-    })
+    const [firstIndex, secondIndex] = newSelectedCards;
+    const firstCard = currentBoard.cards[firstIndex];
+    const secondCard = currentBoard.cards[secondIndex];
 
-    // Add to selected cards
-    const newSelectedCards = [...selectedCards, index]
-    setSelectedCards(newSelectedCards)
+    if (firstCard.name === secondCard.name) {
+      // ✅ MATCH
+      setTimeout(() => {
+        updateCurrentBoard((board) => {
+          const updatedCards = [...board.cards];
+          updatedCards[firstIndex] = { ...updatedCards[firstIndex], matched: true };
+          updatedCards[secondIndex] = { ...updatedCards[secondIndex], matched: true };
+          const newConsecutiveMatches = board.consecutiveMatches + 1;
 
-    // Add to AI memory - store all positions of each card type
-    if (gameMode === "ai") {
-      const cardName = cards[index].name
-      const currentPositions = aiMemory.current.get(cardName) || []
-      if (!currentPositions.includes(index)) {
-        aiMemory.current.set(cardName, [...currentPositions, index])
-      }
-    }
+          return {
+            ...board,
+            cards: updatedCards,
+            consecutiveMatches: newConsecutiveMatches,
+          };
+        });
 
-    // Check for a match if two cards are selected
-    if (newSelectedCards.length === 2) {
-      setDisableFlip(true)
+        const newConsecutiveMatches = currentBoard.consecutiveMatches + 1;
+        const multiplier = Math.min(3, newConsecutiveMatches);
 
-      const [firstIndex, secondIndex] = newSelectedCards
-      const firstCard = cards[firstIndex]
-      const secondCard = cards[secondIndex]
+        const matchedPokemon = currentBoard.pokemon.find((p) => p.name === firstCard.name);
+        if (matchedPokemon?.evolutionChain?.evolvesTo) {
+          setEvolutionData({
+            basePokemon: matchedPokemon,
+            evolvedPokemon: matchedPokemon.evolutionChain.evolvesTo,
+            cardIndices: [firstIndex, secondIndex],
+          });
 
-      if (firstCard.name === secondCard.name) {
-        // Match found
+          setShowEvolution(true);
+          onMatchFound(multiplier, true);
+        } else {
+          setSelectedCards([]);
+
+          updateCurrentBoard((board) => ({
+            ...board,
+            matchedPairs: board.matchedPairs + 1,
+          }));
+
+          onMatchFound(multiplier, false);
+          setDisableFlip(false);
+          checkLevelCompletion();
+        }
+      }, 1000);
+    } else {
+      // ❌ NO MATCH
+      setTimeout(() => {
+        // Visual unflip
+        const firstCardElement = document.querySelector(`[data-card-id="${firstIndex}"]`) as HTMLElement;
+        const secondCardElement = document.querySelector(`[data-card-id="${secondIndex}"]`) as HTMLElement;
+
+        if (firstCardElement && secondCardElement) {
+          gsap.to([firstCardElement, secondCardElement], {
+            rotationY: 0,
+            duration: 0.1,
+            ease: "power2.out",
+          });
+        }
+
+        // Delay logic for card state update and board change
         setTimeout(() => {
-          setCards(prevCards => {
-            const updatedCards = [...prevCards]
-            updatedCards[firstIndex].matched = true
-            updatedCards[secondIndex].matched = true
-            return updatedCards
-          })
+          updateCurrentBoard((board) => {
+            const updatedCards = [...board.cards];
+            updatedCards[firstIndex] = { ...updatedCards[firstIndex], flipped: false };
+            updatedCards[secondIndex] = { ...updatedCards[secondIndex], flipped: false };
 
-          // Increase consecutive matches counter for multiplier
-          const newConsecutiveMatches = consecutiveMatches + 1
-          setConsecutiveMatches(newConsecutiveMatches)
+            return {
+              ...board,
+              cards: updatedCards,
+              consecutiveMatches: 0,
+            };
+          });
 
-          // Calculate multiplier based on consecutive matches
-          const multiplier = Math.min(3, newConsecutiveMatches)
+          setSelectedCards([]);
+          onNoMatch();
+          setDisableFlip(false);
 
-          // Check if the matched Pokémon can evolve
-          const matchedPokemon = pokemon.find((p) => p.name === firstCard.name)
-          if (matchedPokemon?.evolutionChain?.evolvesTo) {
-            // Set evolution data
-            setEvolutionData({
-              basePokemon: matchedPokemon,
-              evolvedPokemon: matchedPokemon.evolutionChain.evolvesTo,
-              cardIndices: [firstIndex, secondIndex],
-            })
-
-            // Show evolution animation
-            setShowEvolution(true)
-
-            // Award points with evolution bonus
-            onMatchFound(multiplier, true)
-          } else {
-            // No evolution, just award regular points
-            setSelectedCards([])
-            setMatchedPairs((prev) => prev + 1)
-            onMatchFound(multiplier, false)
-            setDisableFlip(false)
-
-            // Check if level is complete
-            checkLevelCompletion()
-          }
-        }, 1000)
-      } else {
-        // No match
-        setTimeout(() => {
-          // Flip cards back with GSAP
-          const firstCardElement = document.querySelector(`[data-card-id="${firstIndex}"]`) as HTMLElement
-          const secondCardElement = document.querySelector(`[data-card-id="${secondIndex}"]`) as HTMLElement
-
-          if (firstCardElement && secondCardElement) {
-            gsap.to([firstCardElement, secondCardElement], {
-              rotationY: 0,
-              duration: 0.6,
-              ease: "power2.out",
-            })
-          }
-
-          setCards(prevCards => {
-            const updatedCards = [...prevCards]
-            updatedCards[firstIndex].flipped = false
-            updatedCards[secondIndex].flipped = false
-            return updatedCards
-          })
-          
-          setSelectedCards([])
-          setConsecutiveMatches(0)
-          onNoMatch()
-          setDisableFlip(false)
-        }, 1500)
-      }
+          // ❗✅ Put logic to switch player or board here AFTER unflipping is fully done
+          // e.g., setCurrentPlayer(prev => (prev + 1) % 2) or handleNextTurn()
+        }, 300); // wait for GSAP to finish
+      }, 1500); // wait to show mismatched cards before flipping back
     }
-  }, [cards, selectedCards, disableFlip, consecutiveMatches, pokemon, gameMode, onMatchFound, onNoMatch, checkLevelCompletion])
+  }
+}, [boards, currentPlayer, selectedCards, disableFlip, gameMode, aiPlayer, onMatchFound, onNoMatch, checkLevelCompletion, updateCurrentBoard]);
 
   // Fetch evolution chain data with error handling
   const fetchEvolutionData = useCallback(async (pokemonId: number): Promise<{
@@ -342,7 +442,7 @@ export default function GameBoard({
           const evolvesToName = firstEvolution.evolves_to[0].species.name
           const evolvedRes = await fetch(`${POKEMON_API}/${evolvesToName}`)
           
-          if (!evolvedRes.ok) {
+          if (evolvedRes.status !== 200) {
             throw new Error(`Failed to fetch evolved Pokémon: ${evolvedRes.status}`)
           }
           
@@ -367,11 +467,8 @@ export default function GameBoard({
     }
   }, [])
 
-  // Fetch Pokemon data with error handling and retries
-  const fetchPokemon = useCallback(async () => {
-    setLoading(true)
-    setError(null)
-    
+  // Create a board for a specific player with level-appropriate difficulty
+  const createBoardForPlayer = useCallback(async (playerKey: "player1" | "player2", baseOffset: number) => {
     const retryFetch = async (url: string, retries = 3): Promise<Response> => {
       try {
         const response = await fetch(url)
@@ -389,10 +486,12 @@ export default function GameBoard({
     
     try {
       const numberOfPairs = totalPairs.current
-      // Use a varied offset to get different Pokémon each time
-      const offset = Math.floor(Math.random() * 800) 
       
-      const response = await retryFetch(`${POKEMON_API}?limit=${numberOfPairs}&offset=${offset}`)
+      // Get level-appropriate offset for more variety as levels increase
+      const playerOffset = getPokemonOffsetForLevel(level, baseOffset) + 
+                          (playerKey === "player2" ? 150 : 0)
+      
+      const response = await retryFetch(`${POKEMON_API}?limit=${numberOfPairs}&offset=${playerOffset}`)
       const data = await response.json()
 
       const pokemonPromises = data.results.map(async (p: { url: string }) => {
@@ -412,17 +511,52 @@ export default function GameBoard({
       })
 
       const pokemonDetails = await Promise.all(pokemonPromises)
-      setPokemon(pokemonDetails)
-
+      
       // Create pairs of cards
       const cardPairs = shuffleArray([
         ...pokemonDetails.map((p, idx) => ({ ...p, flipped: false, matched: false, id: idx })),
         ...pokemonDetails.map((p, idx) => ({ ...p, flipped: false, matched: false, id: idx + pokemonDetails.length }))
       ])
 
-      setCards(cardPairs)
-      setMatchedPairs(0)
-      setConsecutiveMatches(0)
+      // Return the player's board data
+      return {
+        cards: cardPairs,
+        pokemon: pokemonDetails,
+        matchedPairs: 0,
+        consecutiveMatches: 0
+      }
+    } catch (error) {
+      console.error(`Error creating board for ${playerKey}:`, error)
+      throw error
+    }
+  }, [level, fetchEvolutionData, shuffleArray])
+
+  // Fetch Pokemon data with error handling and retries for both players
+  const fetchPokemon = useCallback(async () => {
+    setLoading(true)
+    setError(null)
+    
+    try {
+      // Update total pairs based on current level
+      totalPairs.current = getCardPairsForLevel(level)
+      
+      // Use a varied offset to get different Pokémon each time
+      const baseOffset = Math.floor(Math.random() * 650)
+      
+      // Create boards for both players in parallel
+      const [player1Board, player2Board] = await Promise.all([
+        createBoardForPlayer("player1", baseOffset),
+        createBoardForPlayer("player2", baseOffset)
+      ])
+      
+      // Update the boards state
+      setBoards({
+        player1: player1Board,
+        player2: player2Board
+      })
+      
+      // Reset other game state
+      setSelectedCards([])
       aiMemory.current.clear()
       
     } catch (error) {
@@ -431,7 +565,7 @@ export default function GameBoard({
     } finally {
       setLoading(false)
     }
-  }, [fetchEvolutionData, shuffleArray])
+  }, [level, createBoardForPlayer])
 
   // Fetch cards when level changes
   useEffect(() => {
@@ -468,7 +602,28 @@ export default function GameBoard({
         },
       )
     }
-  }, [loading])
+  }, [loading, currentPlayer])
+
+  useEffect(() => {
+  if (gameMode === "multiplayer") {
+    
+    updateCurrentBoard((board) => {
+      const updatedCards = board.cards.map((card) => {
+        // Flip back cards that are flipped but not matched
+        if (card.flipped && !card.matched) {
+          return { ...card, flipped: false };
+        }
+        return card;
+      });
+
+      return {
+        ...board,
+        cards: updatedCards,
+      };
+    });
+  }
+}, [currentPlayer, gameMode, updateCurrentBoard]);
+
 
   // AI player logic with improved memory and strategy based on difficulty
   useEffect(() => {
@@ -476,13 +631,15 @@ export default function GameBoard({
       return
     }
     
+    const currentBoard = boards[currentPlayer]
+    
     // Clear any existing timeout
     if (aiTimeoutRef.current) {
       clearTimeout(aiTimeoutRef.current)
     }
     
     aiTimeoutRef.current = setTimeout(() => {
-      const unflippedCards = cards.filter(card => !card.flipped && !card.matched)
+      const unflippedCards = currentBoard.cards.filter(card => !card.flipped && !card.matched)
       
       // If no cards left to flip, return
       if (unflippedCards.length === 0) return
@@ -491,16 +648,16 @@ export default function GameBoard({
       let secondCardIndex = -1
       
       // AI difficulty affects strategy
-      const useMemory = aiDifficulty === "hard" || 
-                        (aiDifficulty === "medium" && Math.random() > 0.2) || 
-                        (aiDifficulty === "easy" && Math.random() > 0.7)
+      const useMemory = effectiveAIDifficulty === "hard" || 
+                        (effectiveAIDifficulty === "medium" && Math.random() > 0.2) || 
+                        (effectiveAIDifficulty === "easy" && Math.random() > 0.7)
       
       if (useMemory) {
         // Check if we can make a match from memory
         for (const [cardName, positions] of aiMemory.current.entries()) {
           // Find unflipped positions for this card type
           const availablePositions = positions.filter(
-            pos => !cards[pos].flipped && !cards[pos].matched
+            pos => !currentBoard.cards[pos].flipped && !currentBoard.cards[pos].matched
           )
           
           if (availablePositions.length >= 2) {
@@ -516,7 +673,7 @@ export default function GameBoard({
       if (firstCardIndex === -1) {
         // Pick a random card
         const randomIndex = Math.floor(Math.random() * unflippedCards.length)
-        firstCardIndex = cards.findIndex(card => card.id === unflippedCards[randomIndex].id)
+        firstCardIndex = currentBoard.cards.findIndex(card => card.id === unflippedCards[randomIndex].id)
         
         // Flip first card
         handleCardFlip(firstCardIndex)
@@ -524,12 +681,12 @@ export default function GameBoard({
         // AI waits before flipping second card
         aiTimeoutRef.current = setTimeout(() => {
           // Check if we have the matching card in memory
-          const firstCardName = cards[firstCardIndex].name
+          const firstCardName = currentBoard.cards[firstCardIndex].name
           const matchingPositions = aiMemory.current.get(firstCardName) || []
           
           // Filter out the first card's position and already matched/flipped cards
           const availableMatches = matchingPositions.filter(
-            pos => pos !== firstCardIndex && !cards[pos].flipped && !cards[pos].matched
+            pos => pos !== firstCardIndex && !currentBoard.cards[pos].flipped && !currentBoard.cards[pos].matched
           )
           
           if (useMemory && availableMatches.length > 0) {
@@ -538,12 +695,12 @@ export default function GameBoard({
           } else {
             // Pick a random second card that's not the first one
             const remainingUnflipped = unflippedCards.filter(card => 
-              cards.findIndex(c => c.id === card.id) !== firstCardIndex
+              currentBoard.cards.findIndex(c => c.id === card.id) !== firstCardIndex
             )
             
             if (remainingUnflipped.length > 0) {
               const randomSecondIndex = Math.floor(Math.random() * remainingUnflipped.length)
-              secondCardIndex = cards.findIndex(card => card.id === remainingUnflipped[randomSecondIndex].id)
+              secondCardIndex = currentBoard.cards.findIndex(card => card.id === remainingUnflipped[randomSecondIndex].id)
             }
           }
           
@@ -568,7 +725,7 @@ export default function GameBoard({
         aiTimeoutRef.current = null
       }
     }
-  }, [currentPlayer, gameMode, aiPlayer, cards, loading, disableFlip, aiDifficulty, handleCardFlip])
+  }, [currentPlayer, gameMode, aiPlayer, boards, loading, disableFlip, effectiveAIDifficulty, handleCardFlip])
 
   // Loading state
   if (loading) {
@@ -595,14 +752,33 @@ export default function GameBoard({
     )
   }
 
+  // Get current board data
+  const currentBoardData = boards[currentPlayer]
+
   return (
     <>
+      {/* High Score Display */}
+      { (
+        <div className="flex items-center justify-center mb-4 text-yellow-300">
+          <Trophy className="w-5 h-5 mr-2" />
+          <span className="text-sm md:text-base">
+            {newHighScore ? "New High Score!" : `High Score: ${highScore}`}
+          </span>
+        </div>
+      )}
+      
+    
+      
       <div
         ref={boardRef}
-        className="bg-gradient-to-br from-indigo-800/30 to-purple-800/30 backdrop-blur-sm rounded-xl p-4 md:p-6 shadow-lg border border-indigo-500/20"
+        className="bg-gradient-to-br from-gray-700/30 via-slate-800/20 to-blue-900/20
+             backdrop-blur-2xl border border-white/10
+             rounded-2xl p-4 md:p-6
+             shadow-[0_6px_24px_0_rgba(0,0,0,0.2)]
+             ring-1 ring-white/10 transition-all duration-300"
       >
         <div className={`grid ${getGridColumns()} gap-3 md:gap-4`}>
-          {cards.map((card, index) => (
+          {currentBoardData.cards.map((card, index) => (
             <PokemonCard
               key={card.id}
               pokemon={card}

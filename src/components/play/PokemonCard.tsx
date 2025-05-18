@@ -31,8 +31,8 @@ export default function PokemonCard({
     if (cardRef.current) {
       gsap.to(cardRef.current, {
         rotationY: pokemon.flipped ? 180 : 0,
-        duration: 0.3,
-        ease: "power4",
+        duration: 0.1,
+        ease: "expo",
       });
     }
   }, [pokemon.flipped]);
@@ -94,7 +94,7 @@ export default function PokemonCard({
           style={{ backfaceVisibility: "hidden" }}
         >
           <div className="w-full h-full relative bg-gradient-to-br from-gray-900/40 to-black/60 flex items-center justify-center p-2">
-            {/* Lightning Pattern */}
+            {/* pokeBall Pattern */}
             <div className="absolute inset-0 opacity-20 pointer-events-none">
               {Array.from({ length: 5 }).map((_, i) => (
                 <MdOutlineCatchingPokemon
@@ -121,7 +121,7 @@ export default function PokemonCard({
           </div>
         </div>
 
-        {/* Card Front - Dark Mode */}
+        {/* Card Front */}
         <div
           className="absolute w-full h-full rounded-xl overflow-hidden border-2 border-gray-700 shadow-xl bg-gray-900/80 backdrop-blur-sm"
           style={{

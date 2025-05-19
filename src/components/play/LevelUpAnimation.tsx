@@ -11,10 +11,19 @@ export default function LevelUpAnimation({ level }: LevelUpAnimationProps) {
   const contentRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
   const levelRef = useRef<HTMLDivElement>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     if (!containerRef.current || !contentRef.current || !titleRef.current || !levelRef.current)
       return;
+      
+    // Create and play victory sound when component mounts
+    audioRef.current = new Audio("/audio/victory.mp3");
+    audioRef.current.volume = 0.6; // Adjust volume as needed
+    audioRef.current.play().catch(error => {
+      // Handle any autoplay restrictions silently
+      console.log("Audio playback prevented:", error);
+    });
 
     const tl = gsap.timeline();
 
@@ -99,6 +108,11 @@ export default function LevelUpAnimation({ level }: LevelUpAnimationProps) {
     });
 
     return () => {
+      // Stop and clean up the audio when component unmounts
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
       tl.kill();
     };
   }, [level]);

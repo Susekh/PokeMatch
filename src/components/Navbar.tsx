@@ -3,6 +3,7 @@ import gsap from "gsap";
 import { useWindowScroll } from "react-use";
 import { useEffect, useRef, useState } from "react";
 import { TiLocationArrow } from "react-icons/ti";
+import { RiMenu3Line, RiCloseLine } from "react-icons/ri";
 import Button from "./Button";
 import { Link } from "react-router";
 
@@ -14,6 +15,7 @@ const navItems = ["Instructions", "About"];
 const NavBar: React.FC = () => {
   const [isAudioPlaying, setIsAudioPlaying] = useState(false);
   const [isIndicatorActive, setIsIndicatorActive] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const audioElementRef = useRef<HTMLAudioElement | null>(null);
   const navContainerRef = useRef<HTMLDivElement | null>(null);
@@ -25,6 +27,10 @@ const NavBar: React.FC = () => {
   const toggleAudioIndicator = () => {
     setIsAudioPlaying((prev) => !prev);
     setIsIndicatorActive((prev) => !prev);
+  };
+
+  const toggleMenu = () => {
+    setIsMenuOpen((prev) => !prev);
   };
 
   useEffect(() => {
@@ -95,7 +101,8 @@ const NavBar: React.FC = () => {
 
           {/* Links and Audio */}
           <div className="flex h-full items-center">
-            <div className="text-xs md:block">
+            {/* Desktop Navigation */}
+            <div className="text-xs hidden md:block">
               {navItems.map((item, index) => (
                 <Link
                   key={index}
@@ -106,6 +113,18 @@ const NavBar: React.FC = () => {
                 </Link>
               ))}
             </div>
+
+            {/* Mobile Menu Button */}
+            <button 
+              className="text-white md:hidden mr-4"
+              onClick={toggleMenu}
+            >
+              {isMenuOpen ? (
+                <RiCloseLine size={24} />
+              ) : (
+                <RiMenu3Line size={24} />
+              )}
+            </button>
 
             <button
               onClick={toggleAudioIndicator}
@@ -129,6 +148,29 @@ const NavBar: React.FC = () => {
             </button>
           </div>
         </nav>
+
+        {/* Mobile Menu Dropdown */}
+        {isMenuOpen && (
+          <div className="md:hidden absolute top-14 right-4 w-40 py-2 bg-black/80 backdrop-blur-md border border-white/20 rounded-lg shadow-lg z-50">
+            {navItems.map((item, index) => (
+              <Link
+                key={index}
+                to={`/${item.toLowerCase()}`}
+                className="block px-4 py-2 text-sm text-white hover:bg-white/10"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                {item}
+              </Link>
+            ))}
+            <Link
+              to="/play"
+              className="block px-4 py-2 text-sm text-white hover:bg-white/10"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Play Now
+            </Link>
+          </div>
+        )}
       </header>
     </div>
   );

@@ -155,7 +155,7 @@ export default function EvolutionAnimation({ basePokemon, evolvedPokemon, onComp
         </div>
 
         <div ref={resultRef} className="mt-8 text-center opacity-0">
-          <h3 className="text-2xl font-bold text-white mb-2">
+          <h3 className="text-2xl font-bold font-pokemon text-white mb-2">
             {basePokemon.name.charAt(0).toUpperCase() + basePokemon.name.slice(1)} evolved into{" "}
             {evolvedPokemon.name.charAt(0).toUpperCase() + evolvedPokemon.name.slice(1)}!
           </h3>

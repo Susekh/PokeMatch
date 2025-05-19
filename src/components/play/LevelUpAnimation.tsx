@@ -154,7 +154,7 @@ export default function LevelUpAnimation({ level }: LevelUpAnimationProps) {
 
           <h2
             ref={titleRef}
-            className="text-5xl font-extrabold mb-3 text-transparent bg-clip-text bg-gradient-to-r from-yellow-200 via-pink-300 to-cyan-300 drop-shadow-glow"
+            className="text-5xl font-pokemon-hollow font-extrabold mb-3 text-transparent bg-clip-text bg-gradient-to-r from-yellow-200 via-pink-300 to-cyan-300 drop-shadow-glow"
           >
             Level Up!
           </h2>
@@ -164,13 +164,13 @@ export default function LevelUpAnimation({ level }: LevelUpAnimationProps) {
             className="text-7xl font-extrabold text-white mb-4 flex items-center justify-center gap-4 animate-bounce-slow"
           >
             <Sparkles className="w-10 h-10 text-white drop-shadow-glow animate-ping" />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-yellow-100 to-white drop-shadow-glow">
+            <span className="text-transparent font-pokemon bg-clip-text bg-gradient-to-r from-white via-yellow-100 to-white drop-shadow-glow">
               {level}
             </span>
             <Sparkles className="w-10 h-10 text-white drop-shadow-glow animate-ping" />
           </div>
 
-          <p className="text-white/90 text-lg tracking-wide animate-fade-in-up">
+          <p className="text-white/90 font-pokemon text-lg tracking-wide animate-fade-in-up">
             You've grown stronger. New challenges await!
           </p>
         </div>

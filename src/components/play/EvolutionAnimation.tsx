@@ -23,8 +23,17 @@ export default function EvolutionAnimation({ basePokemon, evolvedPokemon, onComp
   const titleRef = useRef<HTMLHeadingElement>(null)
   const subtitleRef = useRef<HTMLParagraphElement>(null)
   const resultRef = useRef<HTMLDivElement>(null)
+  const audioRef = useRef<HTMLAudioElement | null>(null)
 
   useEffect(() => {
+    // Create and play battle sound when component mounts
+    audioRef.current = new Audio("/audio/battle.mp3")
+    audioRef.current.volume = 0.6 // Adjust volume as needed
+    audioRef.current.play().catch(error => {
+      // Handle any autoplay restrictions silently
+      console.log("Audio playback prevented:", error)
+    })
+
     if (!containerRef.current) return
 
     const tl = gsap.timeline({
@@ -84,6 +93,11 @@ export default function EvolutionAnimation({ basePokemon, evolvedPokemon, onComp
     })
 
     return () => {
+      // Stop and clean up the audio when component unmounts
+      if (audioRef.current) {
+        audioRef.current.pause()
+        audioRef.current = null
+      }
       tl.kill()
     }
   }, [onComplete])

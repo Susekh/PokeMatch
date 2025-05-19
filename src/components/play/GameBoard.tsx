@@ -277,172 +277,183 @@ export default function GameBoard({
   }, [evolutionData, updateCurrentBoard, checkLevelCompletion]);
 
   // Handle card flipping
-  const handleCardFlip = useCallback(
-    (index: number) => {
-      const currentBoard = boards[currentPlayer];
+const handleCardFlip = useCallback(
+  (index: number) => {
+    const currentBoard = boards[currentPlayer];
+    
+    // Create audio element for swipe sound
+    const swipeSound = new Audio("/audio/swipe.mp3");
 
-      if (
-        disableFlip ||
-        currentBoard.cards[index]?.flipped ||
-        currentBoard.cards[index]?.matched ||
-        selectedCards.length >= 2
-      ) {
-        return;
-      }
+    if (
+      disableFlip ||
+      currentBoard.cards[index]?.flipped ||
+      currentBoard.cards[index]?.matched ||
+      selectedCards.length >= 2
+    ) {
+      return;
+    }
 
-      // Flip the card visually
-      const cardElement = document.querySelector(
-        `[data-card-id="${index}"]`
-      ) as HTMLElement;
-      if (cardElement) {
-        gsap.to(cardElement, {
-          rotationY: 180,
-          duration: 0.1,
-          ease: "expo",
-        });
-      }
+    // Play swipe sound when card is clicked
+    swipeSound.volume = 0.7; // Adjust volume as needed
+    swipeSound.currentTime = 0; // Reset audio to start
+    swipeSound.play().catch(error => {
+      // Handle any autoplay restrictions silently
+      console.log("Audio playback prevented:", error);
+    });
 
-      // Update flipped state
-      updateCurrentBoard((board) => {
-        const updatedCards = [...board.cards];
-        updatedCards[index] = { ...updatedCards[index], flipped: true };
-        return { ...board, cards: updatedCards };
+    // Flip the card visually
+    const cardElement = document.querySelector(
+      `[data-card-id="${index}"]`
+    ) as HTMLElement;
+    if (cardElement) {
+      gsap.to(cardElement, {
+        rotationY: 180,
+        duration: 0.1,
+        ease: "expo",
       });
+    }
 
-      // Track selection
-      const newSelectedCards = [...selectedCards, index];
-      setSelectedCards(newSelectedCards);
+    // Update flipped state
+    updateCurrentBoard((board) => {
+      const updatedCards = [...board.cards];
+      updatedCards[index] = { ...updatedCards[index], flipped: true };
+      return { ...board, cards: updatedCards };
+    });
 
-      // AI memory update
-      if (gameMode === "ai" && currentPlayer === aiPlayer) {
-        const cardName = currentBoard.cards[index].name;
-        const currentPositions = aiMemory.current.get(cardName) || [];
-        if (!currentPositions.includes(index)) {
-          aiMemory.current.set(cardName, [...currentPositions, index]);
-        }
+    // Track selection
+    const newSelectedCards = [...selectedCards, index];
+    setSelectedCards(newSelectedCards);
+
+    // AI memory update
+    if (gameMode === "ai" && currentPlayer === aiPlayer) {
+      const cardName = currentBoard.cards[index].name;
+      const currentPositions = aiMemory.current.get(cardName) || [];
+      if (!currentPositions.includes(index)) {
+        aiMemory.current.set(cardName, [...currentPositions, index]);
       }
+    }
 
-      // Match logic
-      if (newSelectedCards.length === 2) {
-        setDisableFlip(true);
+    // Match logic
+    if (newSelectedCards.length === 2) {
+      setDisableFlip(true);
 
-        const [firstIndex, secondIndex] = newSelectedCards;
-        const firstCard = currentBoard.cards[firstIndex];
-        const secondCard = currentBoard.cards[secondIndex];
+      const [firstIndex, secondIndex] = newSelectedCards;
+      const firstCard = currentBoard.cards[firstIndex];
+      const secondCard = currentBoard.cards[secondIndex];
 
-        if (firstCard.name === secondCard.name) {
-          // ✅ MATCH
+      if (firstCard.name === secondCard.name) {
+        // ✅ MATCH
+        setTimeout(() => {
+          updateCurrentBoard((board) => {
+            const updatedCards = [...board.cards];
+            updatedCards[firstIndex] = {
+              ...updatedCards[firstIndex],
+              matched: true,
+            };
+            updatedCards[secondIndex] = {
+              ...updatedCards[secondIndex],
+              matched: true,
+            };
+            const newConsecutiveMatches = board.consecutiveMatches + 1;
+
+            return {
+              ...board,
+              cards: updatedCards,
+              consecutiveMatches: newConsecutiveMatches,
+            };
+          });
+
+          const newConsecutiveMatches = currentBoard.consecutiveMatches + 1;
+          const multiplier = Math.min(3, newConsecutiveMatches);
+
+          const matchedPokemon = currentBoard.pokemon.find(
+            (p) => p.name === firstCard.name
+          );
+          if (matchedPokemon?.evolutionChain?.evolvesTo) {
+            setEvolutionData({
+              basePokemon: matchedPokemon,
+              evolvedPokemon: matchedPokemon.evolutionChain.evolvesTo,
+              cardIndices: [firstIndex, secondIndex],
+            });
+
+            setShowEvolution(true);
+            onMatchFound(multiplier, true);
+          } else {
+            setSelectedCards([]);
+
+            updateCurrentBoard((board) => ({
+              ...board,
+              matchedPairs: board.matchedPairs + 1,
+            }));
+
+            onMatchFound(multiplier, false);
+            setDisableFlip(false);
+            checkLevelCompletion();
+          }
+        }, 1000);
+      } else {
+        // ❌ NO MATCH
+        setTimeout(() => {
+          // Visual unflip
+          const firstCardElement = document.querySelector(
+            `[data-card-id="${firstIndex}"]`
+          ) as HTMLElement;
+          const secondCardElement = document.querySelector(
+            `[data-card-id="${secondIndex}"]`
+          ) as HTMLElement;
+
+          if (firstCardElement && secondCardElement) {
+            gsap.to([firstCardElement, secondCardElement], {
+              rotationY: 0,
+              duration: 0.1,
+              ease: "power2.out",
+            });
+          }
+
+          // Delay logic for card state update and board change
           setTimeout(() => {
             updateCurrentBoard((board) => {
               const updatedCards = [...board.cards];
               updatedCards[firstIndex] = {
                 ...updatedCards[firstIndex],
-                matched: true,
+                flipped: false,
               };
               updatedCards[secondIndex] = {
                 ...updatedCards[secondIndex],
-                matched: true,
+                flipped: false,
               };
-              const newConsecutiveMatches = board.consecutiveMatches + 1;
 
               return {
                 ...board,
                 cards: updatedCards,
-                consecutiveMatches: newConsecutiveMatches,
+                consecutiveMatches: 0,
               };
             });
 
-            const newConsecutiveMatches = currentBoard.consecutiveMatches + 1;
-            const multiplier = Math.min(3, newConsecutiveMatches);
+            setSelectedCards([]);
+            onNoMatch();
+            setDisableFlip(false);
 
-            const matchedPokemon = currentBoard.pokemon.find(
-              (p) => p.name === firstCard.name
-            );
-            if (matchedPokemon?.evolutionChain?.evolvesTo) {
-              setEvolutionData({
-                basePokemon: matchedPokemon,
-                evolvedPokemon: matchedPokemon.evolutionChain.evolvesTo,
-                cardIndices: [firstIndex, secondIndex],
-              });
-
-              setShowEvolution(true);
-              onMatchFound(multiplier, true);
-            } else {
-              setSelectedCards([]);
-
-              updateCurrentBoard((board) => ({
-                ...board,
-                matchedPairs: board.matchedPairs + 1,
-              }));
-
-              onMatchFound(multiplier, false);
-              setDisableFlip(false);
-              checkLevelCompletion();
-            }
-          }, 1000);
-        } else {
-          // ❌ NO MATCH
-          setTimeout(() => {
-            // Visual unflip
-            const firstCardElement = document.querySelector(
-              `[data-card-id="${firstIndex}"]`
-            ) as HTMLElement;
-            const secondCardElement = document.querySelector(
-              `[data-card-id="${secondIndex}"]`
-            ) as HTMLElement;
-
-            if (firstCardElement && secondCardElement) {
-              gsap.to([firstCardElement, secondCardElement], {
-                rotationY: 0,
-                duration: 0.1,
-                ease: "power2.out",
-              });
-            }
-
-            // Delay logic for card state update and board change
-            setTimeout(() => {
-              updateCurrentBoard((board) => {
-                const updatedCards = [...board.cards];
-                updatedCards[firstIndex] = {
-                  ...updatedCards[firstIndex],
-                  flipped: false,
-                };
-                updatedCards[secondIndex] = {
-                  ...updatedCards[secondIndex],
-                  flipped: false,
-                };
-
-                return {
-                  ...board,
-                  cards: updatedCards,
-                  consecutiveMatches: 0,
-                };
-              });
-
-              setSelectedCards([]);
-              onNoMatch();
-              setDisableFlip(false);
-
-              // ❗✅ Put logic to switch player or board here AFTER unflipping is fully done
-              // e.g., setCurrentPlayer(prev => (prev + 1) % 2) or handleNextTurn()
-            }, 300); // wait for GSAP to finish
-          }, 1500); // wait to show mismatched cards before flipping back
-        }
+            // ❗✅ Put logic to switch player or board here AFTER unflipping is fully done
+            // e.g., setCurrentPlayer(prev => (prev + 1) % 2) or handleNextTurn()
+          }, 300); // wait for GSAP to finish
+        }, 1500); // wait to show mismatched cards before flipping back
       }
-    },
-    [
-      boards,
-      currentPlayer,
-      selectedCards,
-      disableFlip,
-      gameMode,
-      aiPlayer,
-      onMatchFound,
-      onNoMatch,
-      checkLevelCompletion,
-      updateCurrentBoard,
-    ]
-  );
+    }
+  },
+  [
+    boards,
+    currentPlayer,
+    selectedCards,
+    disableFlip,
+    gameMode,
+    aiPlayer,
+    onMatchFound,
+    onNoMatch,
+    checkLevelCompletion,
+    updateCurrentBoard,
+  ]
+);
 
   // Fetch evolution chain data with error handling
   const fetchEvolutionData = useCallback(

@@ -38,7 +38,7 @@ export default function ScoreTracker({
   }, [currentPlayer]);
 
   return (
-    <div className="bg-white/5 backdrop-blur-lg rounded-lg p-3 shadow border border-white/10 w-full max-w-[360px] text-sm text-indigo-100 space-y-3">
+    <div className="bg-white/5 backdrop-blur-lg rounded-lg p-3 shadow border border-white/10 w-full lg:max-w-[360px] text-sm text-indigo-100 space-y-3">
       <h3 className="flex items-center gap-2 text-indigo-200 text-xs font-semibold">
         <Zap className="w-4 h-4 text-yellow-300" />
         Score Tracker

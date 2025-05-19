@@ -94,8 +94,8 @@ export default function GameContainer() {
 
         {gameState === "playing" && (
           <div className="game-board">
-            <div className="flex flex-col md:flex-row gap-6 items-start">
-              <div className="w-full md:w-3/4">
+            <div className="flex flex-col lg:flex-row gap-6 items-start">
+              <div className="w-full md:w-3/4 mx-auto ">
 
                 <GameBoard
                   level={level}
@@ -109,7 +109,7 @@ export default function GameContainer() {
                   aiPlayer={gameMode === "ai" ? "player2" : undefined}
                 />
               </div>
-              <div className=" ml-auto  flex flex-col items-end md:w-1/4">
+              <div className=" ml-auto w-full  flex flex-col items-center justify-center  lg:items-end lg:w-1/4">
                 <div className="flex justify-between items-center mb-4">
                   <button
                     onClick={resetGame}

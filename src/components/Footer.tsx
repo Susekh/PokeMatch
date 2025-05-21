@@ -2,8 +2,8 @@ import {  FaLinkedin, FaGithub } from "react-icons/fa";
 import { Link } from "react-router";
 
 const socialLinks = [
-  { href: "hhttps://github.com/Susekh/PokeMatch", icon: <FaGithub />, label: "Github" },
-  { href: "https://medium.comwww.linkedin.com/in/subhranshu-sekhar-khilar-544a5b275", icon: <FaLinkedin />, label: "LinkedIn" },
+  { href: "https://github.com/Susekh/PokeMatch", icon: <FaGithub />, label: "Github" },
+  { href: "https://www.linkedin.com/in/subhranshu-sekhar-khilar-544a5b275", icon: <FaLinkedin />, label: "LinkedIn" },
 ];
 
 const Footer = () => {
